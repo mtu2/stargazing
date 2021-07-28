@@ -4,6 +4,7 @@ import time
 from blessed import Terminal
 from menu import Menu
 from project import ProjectManager
+import utils.print_tools as pt
 
 
 class Stargazing():
@@ -20,8 +21,10 @@ class Stargazing():
 
         self.start_time = None
 
-        self.menu = self.create_menu()
+        self.menu = None
         self.submenu = None
+
+        self.open_menu()
         self.focused_menu = self.menu
 
     def start(self) -> None:
@@ -33,38 +36,37 @@ class Stargazing():
             self.print_stars()
 
             while True:
+
                 self.print_menu()
                 self.print_submenu()
                 self.print_pomodoro()
 
-                inp = self.term.inkey(timeout=0.05)
+                inp = self.term.inkey(10)
 
-                if inp.lower() == "1":
+                if inp.lower() == "q":
                     break
 
                 if inp.name == "KEY_UP":
-                    self.focused_menu.hover_up()
+                    self.focused_menu.handle_hover_up()
                 elif inp.name == "KEY_DOWN":
-                    self.focused_menu.hover_down()
+                    self.focused_menu.handle_hover_down()
                 elif inp.name == "KEY_ENTER":
-                    self.focused_menu.select()
+                    self.focused_menu.handle_select()
 
     def print_menu(self) -> None:
-        rows = self.menu.get_print_rows()
+        lines = self.menu.get_print_strings()
         x, y = 6, 3
 
-        for i, row in enumerate(rows):
-            print(self.term.move_xy(x, y + i) + row, end="", flush=True)
+        pt.print_lines_xy(self.term, x, y, lines, max_width=30)
 
     def print_submenu(self) -> None:
         if self.submenu is None:
             return
 
-        rows = self.submenu.get_print_rows()
-        x, y = 36, 3
+        lines = self.submenu.get_print_strings()
+        x, y = 40, 3
 
-        for i, row in enumerate(rows):
-            print(self.term.move_xy(x, y + i) + row, end="", flush=True)
+        pt.print_lines_xy(self.term, x, y, lines)
 
     def print_pomodoro(self) -> None:
         if self.start_time == None:
@@ -76,54 +78,62 @@ class Stargazing():
 
         # if row_num == self.hover_row:
         #     text = self.term.gray20_on_white(text)
-        print(self.term.move_xy(x, y) + text, end="", flush=True)
+        pt.print_xy(self.term, x, y, text)
 
     # HELPER FUNCTIONS
 
     def print_logo(self) -> None:
-        print(self.term.move_xy(0, 0) +
-              self.term.gray20_on_white(self.term.bold(' stargazing ')), end="", flush=True)
+        pt.print_xy(self.term, 0, 0,
+                    self.term.gray20_on_white(self.term.bold(' stargazing ')))
 
     def print_gazing(self) -> None:
         with open("gazing.txt", "r", encoding="utf-8") as f:
             lines = f.readlines()
+            dec_lines = [self.term.aliceblue(line) for line in lines]
+
             x, y = 1, self.term.height - len(lines)
 
-            for i, line in enumerate(lines):
-                print(self.term.move_xy(x, y + i) +
-                      self.term.aliceblue(line), end="", flush=True)
+            pt.print_lines_xy(self.term, x, y, dec_lines)
 
     def print_stars(self) -> None:
         with open("stars.txt", "r", encoding="utf-8") as f:
             lines = f.readlines()
+            dec_lines = [self.term.aliceblue(line) for line in lines]
+
             x, y = self.term.width // 2, 3
 
-            for i, line in enumerate(lines):
-                print(self.term.move_xy(x, y + i) +
-                      self.term.aliceblue(line), end="", flush=True)
+            pt.print_lines_xy(self.term, x, y, dec_lines)
 
-    def create_project_submenu(self) -> None:
-        self.submenu = self.projects.create_menu()
+    def close_submenu(self) -> None:
+        self.open_menu()
+        self.print_stars()
+
+        self.submenu = None
+        self.focused_menu = self.menu
+
+    def open_submenu_projects(self) -> None:
+        self.submenu = self.projects.create_menu(
+            self.close_submenu, self.term.gray20_on_white)
         self.focused_menu = self.submenu
 
-    def create_menu(self) -> Menu:
-        menu = Menu(self.term.gray20_on_white)
+    def open_menu(self) -> Menu:
+        menu = Menu(hover_dec=self.term.gray20_on_white)
 
         menu.add_item(
-            f"{self.term.bold('project')}: {self.term.lightcoral(self.projects.current.name)}", self.create_project_submenu)
+            f"{self.term.bold('project')}: {self.term.lightcoral(self.projects.current.name)}", self.open_submenu_projects)
         menu.add_item(
             f"{self.term.bold('todays time')}: {self.term.lightskyblue3(self.projects.current.todays_time)}")
         menu.add_item(
             f"{self.term.bold('total time')}: {self.term.lightskyblue3(self.projects.current.total_time)}")
 
-        menu.add_blank_row()
+        menu.add_divider()
 
         menu.add_item(f"{self.term.bold('pomodoro')}: {self.pomodoro}")
         menu.add_item(f"{self.term.bold('auto-start')}: {self.auto_start}")
 
-        menu.add_blank_row()
+        menu.add_divider()
 
         menu.add_item(f"{self.term.bold('playing')}: {self.playing}")
         menu.add_item(f"{self.term.bold('volume')}: {self.volume}")
 
-        return menu
+        self.menu = menu

@@ -1,14 +1,13 @@
 
-text = """
-project: testing testing
-today’s time: 1h 23m
-total time: 12h 13m
+def echo(num):
+    print(num)
 
-pomodoro: 50 + 10
-auto-start: on
 
-playing: rain.ogg
-volume: 100
-"""
+def a(): return echo(1)
+def b(): return echo(2)
+def c(): return echo(3)
 
-print(text)
+
+a()
+b()
+c()

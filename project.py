@@ -1,3 +1,5 @@
+from functools import partial
+
 from blessed import Terminal
 from menu import Menu
 
@@ -34,16 +36,39 @@ class ProjectManager():
     def __init__(self, term: Terminal) -> None:
         self.term = term
 
-        self.current = Project("stargazing")
-        self.projects = [self.current, Project("pomodoro"), Project("comp10001 foc")]
+        project0 = Project("stargazing ")
+        project1 = Project("pomodoro")
+        project2 = Project("comp10001 foc")
+        project3 = Project("work & internships")
 
-    def create_menu(self) -> Menu:
-        menu = Menu(self.term.gray20_on_white)
+        self.project_names = [project0.name,
+                              project1.name, project2.name, project3.name]
+        self.projects = {
+            project0.name: project0,
+            project1.name: project1,
+            project2.name: project2,
+            project3.name: project3
+        }
 
-        for i, project in enumerate(self.projects):
-            menu.add_item(project.name)
+        self.current = project0
 
-            if project is self.current:
-                menu.set_hover(i)
+    def set_current_project(self, project_name):
+        self.current = self.projects[project_name]
+
+    def create_menu(self, on_close, hover_dec) -> Menu:
+        menu = Menu(hover_dec)
+
+        def set_and_close(project_name):
+            self.set_current_project(project_name)
+            on_close()
+
+        for project_name in self.project_names:
+            on_item_select = partial(set_and_close, project_name)
+            index = menu.add_item(project_name, on_item_select)
+
+            if project_name == self.current.name:
+                menu.set_hover(index)
+
+        menu.add_item(self.term.underline("create new project"))
 
         return menu
