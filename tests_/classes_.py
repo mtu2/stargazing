@@ -7,6 +7,16 @@ class A:
         return self.val
 
 
+class B(A):
+
+    def __init__(self):
+        super().__init__()
+
+    def test_b(self):
+        return self.val
+
+
 if __name__ == "__main__":
     a = A()
-    print(a.test())
+    b = B()
+    print(b.test_b())

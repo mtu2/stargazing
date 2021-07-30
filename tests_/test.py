@@ -1,13 +1,23 @@
+replacement = {
+    12288: " ",
+    12290: "°",
+    65439: "°°°°°",
+    7506:  "*",
+    65294: ".",
+    65291: "+",
+    65359: "*",
+    9734:  "*",
+}
 
-def echo(num):
-    print(num)
 
+with open("res/new_stars.txt", "r") as f:
+    with open("res/test_output.txt", "w") as w:
+        lines = f.readlines()
+        for line in lines:
+            for c in line:
+                o = ord(c)
 
-def a(): return echo(1)
-def b(): return echo(2)
-def c(): return echo(3)
+                if o not in replacement:
+                    print(c, ord(c))
 
-
-a()
-b()
-c()
+                w.write(replacement[o] if o in replacement else c)

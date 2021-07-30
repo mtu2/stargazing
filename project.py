@@ -1,21 +1,16 @@
 from functools import partial
+from typing import Callable
 
 from blessed import Terminal
-from menu import Menu
-
-
-def format_time_str(seconds: int, show_seconds=False) -> str:
-    s = seconds
-    h = s // 3600
-    m = (s - h * 3600) // 60
-
-    if show_seconds:
-        s -= h * 3600 + m * 60
-        return f"{h}h {m}m {s}s"
-    return f"{h}h {m}m"
+from utils.format_funcs import format_project_time
+from utils.logger import logger
+from utils.menu import Menu
 
 
 class Project():
+    """A named project counting total pomodoro time.
+
+    @param name: Display name for the project"""
 
     def __init__(self, name: str) -> None:
         self.name = name
@@ -24,19 +19,25 @@ class Project():
 
     @property
     def todays_time(self) -> str:
-        return format_time_str(self.todays_seconds)
+        return format_project_time(self.todays_seconds)
 
     @property
     def total_time(self) -> str:
-        return format_time_str(self.total_seconds)
+        return format_project_time(self.total_seconds)
 
 
-class ProjectManager():
+class ProjectMenu(Menu):
+    """Project menu user interface - handles switching between and creating new projects.
 
-    def __init__(self, term: Terminal) -> None:
+    @param term: Instance of a blessed terminal.
+    @param on_close: Callback function to run when the project menu is closed."""
+
+    def __init__(self, term: Terminal, on_close: Callable[[], None]) -> None:
         self.term = term
+        super().__init__(term.gray20_on_lavender)
 
-        project0 = Project("stargazing ")
+        # NOTE TEMP SETUP TEMP SETUP TEMP SETUP
+        project0 = Project("stargazing")
         project1 = Project("pomodoro")
         project2 = Project("comp10001 foc")
         project3 = Project("work & internships")
@@ -51,24 +52,113 @@ class ProjectManager():
         }
 
         self.current = project0
+        # NOTE TEMP SETUP TEMP SETUP TEMP SETUP
 
-    def set_current_project(self, project_name):
+        self.create_new_project_mode = False
+        self.create_new_project_mode_index = -1
+        self.create_new_project_name = ""
+
+        self.setup_menu()
+
+        # Function to decorate currently hovered item
+        self.on_close = on_close
+
+    def set_current_project_and_close(self, project_name):
         self.current = self.projects[project_name]
+        self.handle_close()
 
-    def create_menu(self, on_close, hover_dec) -> Menu:
-        menu = Menu(hover_dec)
+    def start_create_new_project_mode(self):
+        self.create_new_project_mode = True
+        super().replace_item(self.create_new_project_mode_index,
+                             "> enter project name", self.finish_create_new_project_mode)
 
-        def set_and_close(project_name):
-            self.set_current_project(project_name)
-            on_close()
+    def update_create_new_project_name(self, name):
+        self.create_new_project_name = name
+        super().replace_item(self.create_new_project_mode_index, "> " + self.create_new_project_name +
+                             self.term.lightsteelblue1("█"), self.finish_create_new_project_mode)
 
+    def cancel_create_new_project_mode(self):
+        self.create_new_project_name = ""
+        self.finish_create_new_project_mode()
+
+    def finish_create_new_project_mode(self):
+        self.create_new_project_name = self.create_new_project_name.strip()
+
+        if self.create_new_project_name:
+            new_project = Project(self.create_new_project_name)
+            self.project_names.append(self.create_new_project_name)
+            self.projects[self.create_new_project_name] = new_project
+
+            on_item_select = partial(
+                self.set_current_project_and_close, self.create_new_project_name)
+            super().add_item(self.create_new_project_name,
+                             on_item_select, self.create_new_project_mode_index)
+
+            self.create_new_project_name = ""
+            self.create_new_project_mode_index += 1
+
+        self.create_new_project_mode = False
+        super().replace_item(self.create_new_project_mode_index, self.term.underline("create new project"),
+                             self.start_create_new_project_mode)
+
+    def setup_menu(self) -> None:
         for project_name in self.project_names:
-            on_item_select = partial(set_and_close, project_name)
-            index = menu.add_item(project_name, on_item_select)
+            on_item_select = partial(
+                self.set_current_project_and_close, project_name)
+            index = super().add_item(project_name, on_item_select)
 
             if project_name == self.current.name:
-                menu.set_hover(index)
+                super().set_hover(index)
 
-        menu.add_item(self.term.underline("create new project"))
+        index = super().add_item(self.term.underline("create new project"),
+                                 self.start_create_new_project_mode)
+        self.create_new_project_mode_index = index
 
-        return menu
+    def handle_key_up(self) -> None:
+        if self.create_new_project_mode:
+            return
+
+        super().handle_key_up()
+
+    def handle_key_down(self) -> None:
+        if self.create_new_project_mode:
+            return
+
+        super().handle_key_down()
+
+    def handle_key_escape(self) -> None:
+        if not self.create_new_project_mode:
+            self.handle_close()
+            return
+
+        self.cancel_create_new_project_mode()
+
+    def handle_key_backspace(self) -> None:
+        if not self.create_new_project_mode or not self.create_new_project_name:
+            return
+
+        new_name = self.create_new_project_name[:-1]
+        self.update_create_new_project_name(new_name)
+
+    def handle_char_input(self, char: str) -> None:
+        if not self.create_new_project_mode and char.lower() == "q":
+            self.handle_close()
+            return
+
+        new_name = self.create_new_project_name + char
+        self.update_create_new_project_name(new_name)
+
+    def handle_close(self) -> None:
+        self.on_close()
+
+    @property
+    def current_project_name(self) -> str:
+        return self.current.name
+
+    @property
+    def current_project_todays_time(self) -> str:
+        return self.current.todays_time
+
+    @property
+    def current_project_total_time(self) -> str:
+        return self.current.total_time

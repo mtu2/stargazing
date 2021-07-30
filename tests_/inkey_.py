@@ -15,3 +15,4 @@ with term.cbreak():
         elif val:
             print("got {0}.".format(val))
     print(f'bye!{term.normal}')
+test = input("enter input,,,")
