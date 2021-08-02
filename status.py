@@ -1,4 +1,3 @@
-from functools import partial
 from typing import Callable
 
 from blessed import Terminal
@@ -6,8 +5,8 @@ from pomodoro import PomodoroMenu
 from utils.menu import Menu
 
 
-class AutoStartMenu(Menu):
-    """Menu interface to change the auto start option of the pomodoro.
+class StatusMenu(Menu):
+    """Menu interface to manually change the status of the pomodoro.
 
     @param term: Instance of a Blessed terminal.
     @param on_close: Callback function to run when menu is closed.
@@ -21,15 +20,14 @@ class AutoStartMenu(Menu):
 
         self.setup_menu()
 
-    def set_autostart_and_close(self, option: bool) -> None:
-        self.pomodoro_menu.autostart = option
+    def finish_timer_and_close(self) -> None:
+        self.pomodoro_menu.finish_timer()
         super().handle_close()
 
-    def setup_menu(self) -> None:
-        for option in [True, False]:
-            on_item_select = partial(
-                self.set_autostart_and_close, option)
-            index = super().add_item(str(option), on_item_select)
+    def reset_timer_and_close(self) -> None:
+        self.pomodoro_menu.reset_timer()
+        super().handle_close
 
-            if option == self.pomodoro_menu.autostart:
-                super().set_hover(index)
+    def setup_menu(self) -> None:
+        super().add_item("finish timer", self.finish_timer_and_close)
+        super().add_item("reset timer", self.finish_timer_and_close)

@@ -1,25 +1,32 @@
-
-import math
 import time
+import sys
 from blessed import Terminal
 
 from autostart import AutoStartMenu
 from pomodoro import PomodoroMenu
 from project import ProjectMenu
+from status import StatusMenu
+
 from utils.logger import logger
-import utils.print_funcs as pf
 from utils.menu import Menu
+import utils.print_funcs as pf
+from utils.stars import StarsGenerator
 
 
 class Stargazing(Menu):
 
-    def __init__(self, term: Terminal) -> None:
-        self.term = term
-        super().__init__(self.term.gray20_on_white)
+    def __init__(self) -> None:
+        self.term = Terminal()
 
-        self.project_menu = ProjectMenu(term, self.close_project_submenu)
-        self.pomodoro_menu = PomodoroMenu(term, self.close_pomodoro_submenu)
-        self.autostart_menu = AutoStartMenu(term, self.close_autostart_submenu)
+        super().__init__(hover_dec=self.term.gray20_on_lavender)
+
+        self.project_menu = ProjectMenu(self.term, self.close_project_submenu)
+        self.pomodoro_menu = PomodoroMenu(
+            self.term, self.close_pomodoro_submenu, self.project_menu)
+        self.autostart_menu = AutoStartMenu(
+            self.term, self.close_autostart_submenu, self.pomodoro_menu)
+        self.status_menu = StatusMenu(
+            self.term, self.close_status_submenu, self.pomodoro_menu)
 
         self.playing = "rain.ogg"
         self.volume = 100
@@ -28,11 +35,12 @@ class Stargazing(Menu):
 
         self.menu = None
         self.submenu = None
-
-        self.setup_menu()
         self.focused_menu = self
 
         self.running = False
+
+        self.stars_generator = StarsGenerator()
+        self.setup_menu()
 
     def start(self) -> None:
         self.running = True
@@ -45,11 +53,22 @@ class Stargazing(Menu):
             self.print_stars()
 
             while self.running:
+                self.print_stars()
                 self.print_menu()
                 self.print_submenu()
-                self.print_pomodoro()
 
-                inp = self.term.inkey(10)
+                sys.stdout.flush()
+
+                inp = self.term.inkey(0.3)
+
+                self.pomodoro_menu.update_elapsed_time()
+
+                super().replace_item(1,
+                                     f"{self.term.bold('todays time')}: {self.term.lightskyblue3(self.project_menu.current.todays_time)}")
+                super().replace_item(2,
+                                     f"{self.term.bold('total time')}: {self.term.lightskyblue3(self.project_menu.current.total_time)}")
+                super().replace_item(8,
+                                     f"{self.pomodoro_menu.current_display}", self.toggle_pomodoro_display)
 
                 if inp.is_sequence and inp.name == "KEY_UP":
                     self.focused_menu.handle_key_up()
@@ -78,14 +97,15 @@ class Stargazing(Menu):
         self.focused_menu = self.submenu
 
     def close_project_submenu(self) -> None:
+
         self.print_stars()
 
         super().replace_item(0,
-                             f"{self.term.bold('project')}: {self.term.lightcoral(self.project_menu.current_project_name)}", self.open_project_submenu)
+                             f"{self.term.bold('project')}: {self.term.lightcoral(self.project_menu.current.name)}", self.open_project_submenu)
         super().replace_item(1,
-                             f"{self.term.bold('todays time')}: {self.term.lightskyblue3(self.project_menu.current_project_todays_time)}")
+                             f"{self.term.bold('todays time')}: {self.term.lightskyblue3(self.project_menu.current.todays_time)}")
         super().replace_item(2,
-                             f"{self.term.bold('total time')}: {self.term.lightskyblue3(self.project_menu.current_project_total_time)}")
+                             f"{self.term.bold('total time')}: {self.term.lightskyblue3(self.project_menu.current.total_time)}")
 
         self.submenu = None
         self.focused_menu = self
@@ -95,10 +115,14 @@ class Stargazing(Menu):
         self.focused_menu = self.submenu
 
     def close_pomodoro_submenu(self) -> None:
+
         self.print_stars()
 
+        self.pomodoro_menu.update_elapsed_time()
         super().replace_item(
             3, f"{self.term.bold('pomodoro')}: {self.pomodoro_menu.current_pomodoro_settings_name}", self.open_pomodoro_submenu)
+        super().replace_item(8,
+                             f"{self.pomodoro_menu.current_display}", self.toggle_pomodoro_display)
 
         self.submenu = None
         self.focused_menu = self
@@ -107,39 +131,67 @@ class Stargazing(Menu):
         self.submenu = self.autostart_menu
         self.focused_menu = self.submenu
 
-    def close_autostart_submenu(self, updated_option: bool) -> None:
+    def close_autostart_submenu(self) -> None:
+
         self.print_stars()
 
         super().replace_item(
-            4, f"{self.term.bold('auto-start')}: {self.autostart_menu.current_option}", self.open_autostart_submenu)
-
-        self.pomodoro_menu.set_autostart(updated_option)
+            4, f"{self.term.bold('auto-start')}: {self.pomodoro_menu.autostart}", self.open_autostart_submenu)
 
         self.submenu = None
         self.focused_menu = self
 
+    def open_status_submenu(self) -> None:
+        self.submenu = self.status_menu
+        self.focused_menu = self.submenu
+
+    def close_status_submenu(self) -> None:
+
+        self.print_stars()
+
+        self.pomodoro_menu.update_elapsed_time()
+
+        super().replace_item(5,
+                             f"{self.term.bold('status')}: {self.pomodoro_menu.current_status}", self.open_status_submenu)
+        super().replace_item(8,
+                             f"{self.pomodoro_menu.current_display}", self.toggle_pomodoro_display)
+        self.submenu = None
+        self.focused_menu = self
+
+    def toggle_pomodoro_display(self) -> None:
+        self.pomodoro_menu.toggle_start_stop()
+        self.pomodoro_menu.update_elapsed_time()
+        super().replace_item(5,
+                             f"{self.term.bold('status')}: {self.pomodoro_menu.current_status}", self.open_status_submenu)
+        super().replace_item(8,
+                             f"{self.pomodoro_menu.current_display}", self.toggle_pomodoro_display)
+
     def setup_menu(self) -> Menu:
         super().add_item(
-            f"{self.term.bold('project')}: {self.term.lightcoral(self.project_menu.current_project_name)}", self.open_project_submenu)
+            f"{self.term.bold('project')}: {self.term.lightcoral(self.project_menu.current.name)}", self.open_project_submenu)
         super().add_item(
-            f"{self.term.bold('todays time')}: {self.term.lightskyblue3(self.project_menu.current_project_todays_time)}")
+            f"{self.term.bold('todays time')}: {self.term.lightskyblue3(self.project_menu.current.todays_time)}")
         super().add_item(
-            f"{self.term.bold('total time')}: {self.term.lightskyblue3(self.project_menu.current_project_total_time)}")
+            f"{self.term.bold('total time')}: {self.term.lightskyblue3(self.project_menu.current.total_time)}")
 
         super().add_divider()
 
         super().add_item(
             f"{self.term.bold('pomodoro')}: {self.pomodoro_menu.current_pomodoro_settings_name}", self.open_pomodoro_submenu)
         super().add_item(
-            f"{self.term.bold('auto-start')}: {self.autostart_menu.current_option}", self.open_autostart_submenu)
+            f"{self.term.bold('auto-start')}: {self.pomodoro_menu.autostart}", self.open_autostart_submenu)
+        super().add_item(
+            f"{self.term.bold('status')}: {self.pomodoro_menu.current_status}", self.open_status_submenu)
 
         super().add_divider()
 
         super().add_item(f"{self.term.bold('playing')}: {self.playing}")
         super().add_item(f"{self.term.bold('volume')}: {self.volume}")
 
-        super().add_item(f"{self.pomodoro_menu.status}",
-                         self.pomodoro_menu.toggle_start_stop)
+        super().add_divider()
+
+        super().add_item(f"{self.pomodoro_menu.current_display}",
+                         self.toggle_pomodoro_display)
 
     # ========================================================
     # Terminal printing methods
@@ -150,11 +202,12 @@ class Stargazing(Menu):
         menu_lines, pomo_line = lines[:-1], lines[-1]
 
         mx, my = 6, 3
-        pf.print_lines_xy(self.term, mx, my, menu_lines, max_width=30)
+        pf.print_lines_xy(self.term, mx, my, menu_lines,
+                          flush=False, max_width=30)
 
-        px, py = round(self.term.width / 2 - self.term.length(pomo_line) /
-                       2), self.term.height - 4
-        pf.print_xy(self.term, px, py, pomo_line)
+        px, py = round(self.term.width / 2), self.term.height - 4
+        pf.print_xy(self.term, px, py, pomo_line,
+                    flush=False, max_width=19, center=True)
 
     def print_submenu(self) -> None:
         if self.submenu is None:
@@ -169,14 +222,11 @@ class Stargazing(Menu):
             max_width = 7
         elif self.submenu is self.autostart_menu:
             max_width = 5
+        elif self.submenu is self.status_menu:
+            max_width = 12
 
-        pf.print_lines_xy(self.term, x, y, lines, max_width)
-
-    def print_pomodoro(self) -> None:
-        if self.start_time == None:
-            text = "START POMODORO"
-        else:
-            text = f"{math.floor(time.time() - self.start_time)}s"
+        pf.print_lines_xy(self.term, x, y, lines,
+                          flush=False, max_width=max_width)
 
     def print_logo(self) -> None:
         pf.print_xy(self.term, 0, 0,
@@ -192,10 +242,9 @@ class Stargazing(Menu):
             pf.print_lines_xy(self.term, x, y, dec_lines)
 
     def print_stars(self) -> None:
-        with open("res/stars.txt", "r", encoding="utf-8") as f:
-            lines = f.readlines()
-            dec_lines = [self.term.aliceblue(line) for line in lines]
+        stars = self.stars_generator.get_stars()
+        dec_lines = [self.term.aliceblue(line) for line in stars]
 
-            x, y = 2, 1  # self.term.width // 2, 3
+        x, y = 2, 1
 
-            pf.print_lines_xy(self.term, x, y, dec_lines)
+        pf.print_lines_xy(self.term, x, y, dec_lines, flush=False)

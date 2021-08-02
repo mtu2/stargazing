@@ -4,15 +4,22 @@ from typing import List
 from blessed import Terminal
 
 
-def print_xy(term: Terminal, x: int, y: int, *values: str, sep="", end=""):
-    with term.location(x, y):
-        print(*values, sep=sep, end=end, flush=True)
+def print_xy(term: Terminal, x: int, y: int, value: str, flush=True, max_width: int = None, center=False):
+    if max_width is not None:
+        empty_len = max(max_width - term.length(value), 0)
 
-
-def print_lines_xy(term: Terminal, x: int, y: int, lines: List[str], max_width: int = None):
-    for i, line in enumerate(lines):
-        if max_width is not None:
-            empty = " " * max(max_width - term.length(line), 0)
-            print_xy(term, x, y + i, f" {line}{empty} ")
+        if center:
+            empty = " " * (empty_len // 2)
+            print(term.move_xy(x - max_width // 2, y) +
+                  f" {empty}{value}{empty} ", end="", flush=flush)
         else:
-            print_xy(term, x, y + i, line)
+            empty = " " * empty_len
+            print(term.move_xy(x, y) +
+                  f" {value}{empty} ", end="", flush=flush)
+    else:
+        print(term.move_xy(x, y) + value, end="", flush=flush)
+
+
+def print_lines_xy(term: Terminal, x: int, y: int, lines: List[str], flush=True, max_width: int = None, center=False):
+    for i, line in enumerate(lines):
+        print_xy(term, x, y + i, line, flush, max_width, center)

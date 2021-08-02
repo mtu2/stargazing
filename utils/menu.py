@@ -1,4 +1,3 @@
-from abc import ABC, abstractmethod
 from typing import Callable
 
 from utils.helper_funcs import check_null_fn
@@ -15,13 +14,13 @@ class MenuItem():
         self.handle_select = check_null_fn(handle_select)
 
 
-class Menu(ABC):
+class Menu():
     """Menu user interface - all user interaction occurs through a main menu and several submenus.
-    Astract class that requires implementing handle_close.
 
+    @param on_close: Callback function to run when menu is closed.
     @param hover_dec: Blessed terminal function to provide colour for the currently hovered item."""
 
-    def __init__(self, hover_dec: Callable[[str], str] = None) -> None:
+    def __init__(self, on_close: Callable[[bool], None] = None, hover_dec: Callable[[str], str] = None) -> None:
 
         # List of menu items ordered top to bottom in appearance
         self.items = []
@@ -31,6 +30,9 @@ class Menu(ABC):
 
         # Index of currently hovered item
         self.hover_index = 0
+
+        # Callback function on menu close
+        self.on_close = check_null_fn(on_close)
 
         # Function to decorate currently hovered item
         self.hover_dec = check_null_fn(hover_dec)
@@ -94,7 +96,7 @@ class Menu(ABC):
 
     def handle_key_escape(self) -> None:
         """Handles escape key sequences"""
-        pass
+        self.handle_close()
 
     def handle_key_backspace(self) -> None:
         """Handles backspace key sequences"""
@@ -102,12 +104,12 @@ class Menu(ABC):
 
     def handle_char_input(self, char) -> None:
         """Handles character keyboard input"""
-        pass
+        if char.lower() == "q":
+            self.handle_close()
 
-    @abstractmethod
-    def handle_close(self, *args) -> None:
-        """Handles menu close - must be implemented by children classes"""
-        pass
+    def handle_close(self) -> None:
+        """Handles menu close"""
+        self.on_close()
 
     # ========================================================
     # Manual interaction handlers

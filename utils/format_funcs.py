@@ -1,3 +1,4 @@
+
 def format_pomodoro_time(seconds: int, show_seconds=True) -> str:
     s = seconds
     m = s // 60
@@ -7,7 +8,8 @@ def format_pomodoro_time(seconds: int, show_seconds=True) -> str:
         return m
 
     if m:
-        return f"{m}:{s}"
+        format_s = '0' + str(s) if s < 10 else s
+        return f"{m}:{format_s}"
     return s
 
 
