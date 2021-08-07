@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from sys import excepthook
 from typing import Dict, List
 import sqlite3
 
@@ -6,7 +7,7 @@ from pomodoro.timer import Timer
 from project.project import Project
 
 
-conn = sqlite3.connect("data/stargazing.db")  # (":memory:")  #
+conn = sqlite3.connect("data/stargazing.db")
 c = conn.cursor()
 
 time_format = "%d/%m/%Y %H:%M:%S"
@@ -24,9 +25,19 @@ def create_tables() -> None:
                 )""")
 
 
-def insert_project(project: Project) -> None:
-    with conn:
-        c.execute("INSERT INTO project VALUES(:name)", {"name": project.name})
+def delete_tables() -> None:
+    c.execute("DROP TABLE project")
+    c.execute("DROP TABLE pomodoro")
+
+
+def insert_project(project: Project) -> bool:
+    try:
+        with conn:
+            c.execute("INSERT INTO project VALUES(:name)",
+                      {"name": project.name})
+        return True
+    except sqlite3.IntegrityError:
+        return False
 
 
 def get_all_projects() -> List[Project]:
@@ -34,7 +45,7 @@ def get_all_projects() -> List[Project]:
     names = c.fetchall()
     projects = {name[0]: Project(name[0]) for name in names}
 
-    pomos = get_pomodoros()
+    pomos = get_all_pomodoros()
     current_time = datetime.now()
     current_time.year
 
@@ -48,13 +59,17 @@ def get_all_projects() -> List[Project]:
 
 
 def insert_pomodoro(project: Project, timer: Timer) -> None:
-    with conn:
-        start_time = timer.local_start_time.strftime(time_format)
-        c.execute("INSERT INTO pomodoro VALUES(:project_name, :start_time, :length)", {
-                  "project_name": project.name, "start_time": start_time, "length": timer.elapsed_time})
+    try:
+        with conn:
+            start_time = timer.local_start_time.strftime(time_format)
+            c.execute("INSERT INTO pomodoro VALUES(:project_name, :start_time, :length)", {
+                "project_name": project.name, "start_time": start_time, "length": timer.elapsed_time})
+        return True
+    except sqlite3.IntegrityError:
+        return False
 
 
-def get_pomodoros() -> Dict[str, float]:
+def get_all_pomodoros() -> Dict[str, float]:
     c.execute("""SELECT * FROM pomodoro""")
     pomodoros = c.fetchall()
     return pomodoros
@@ -75,35 +90,14 @@ if __name__ == "__main__":
     test_timer1 = Timer(1800)
     t = datetime.now()
 
-    test_timer1.elapsed_time = 1700
+    test_timer1.elapsed_time = 1200
     insert_pomodoro(test_project1, test_timer1)
     insert_pomodoro(test_project1, test_timer1)
     insert_pomodoro(test_project1, test_timer1)
-    insert_pomodoro(test_project1, test_timer1)
-    insert_pomodoro(test_project1, test_timer1)
-    insert_pomodoro(test_project1, test_timer1)
-    insert_pomodoro(test_project1, test_timer1)
-    test_timer1.local_start_time = datetime.now() - timedelta(days=1)
-    insert_pomodoro(test_project1, test_timer1)
-    insert_pomodoro(test_project1, test_timer1)
-    insert_pomodoro(test_project1, test_timer1)
-    insert_pomodoro(test_project1, test_timer1)
-    insert_pomodoro(test_project2, test_timer1)
-    insert_pomodoro(test_project2, test_timer1)
-    insert_pomodoro(test_project2, test_timer1)
-    insert_pomodoro(test_project2, test_timer1)
-    insert_pomodoro(test_project2, test_timer1)
-    insert_pomodoro(test_project2, test_timer1)
-    insert_pomodoro(test_project2, test_timer1)
-    insert_pomodoro(test_project2, test_timer1)
-    insert_pomodoro(test_project2, test_timer1)
-    insert_pomodoro(test_project2, test_timer1)
-    insert_pomodoro(test_project2, test_timer1)
-    insert_pomodoro(test_project2, test_timer1)
-    insert_pomodoro(test_project2, test_timer1)
-    insert_pomodoro(test_project2, test_timer1)
-    insert_pomodoro(test_project2, test_timer1)
 
-    projects = get_all_projects()
-    for project in projects:
-        print(project)
+    test_timer1.local_start_time = datetime.now() - timedelta(days=1)
+
+    insert_pomodoro(test_project1, test_timer1)
+    insert_pomodoro(test_project1, test_timer1)
+    insert_pomodoro(test_project2, test_timer1)
+    insert_pomodoro(test_project2, test_timer1)

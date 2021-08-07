@@ -13,6 +13,9 @@ import utils.print_funcs as pf
 from utils.stars import StarsGenerator
 
 
+GAZING_PATH = "res/gazing.txt"
+
+
 class Stargazing(Menu):
 
     def __init__(self) -> None:
@@ -67,6 +70,9 @@ class Stargazing(Menu):
                                      f"{self.term.bold('todays time')}: {self.term.lightskyblue3(self.project_menu.current.todays_time)}")
                 super().replace_item(2,
                                      f"{self.term.bold('total time')}: {self.term.lightskyblue3(self.project_menu.current.total_time)}")
+
+                super().replace_item(5,
+                                     f"{self.term.bold('status')}: {self.pomodoro_menu.current_status}", self.open_status_submenu)
                 super().replace_item(8,
                                      f"{self.pomodoro_menu.current_display}", self.toggle_pomodoro_display)
 
@@ -228,7 +234,7 @@ class Stargazing(Menu):
                     self.term.gray20_on_white(self.term.bold(' stargazing ')))
 
     def print_gazing(self) -> None:
-        with open("res/gazing.txt", "r", encoding="utf-8") as f:
+        with open(GAZING_PATH, "r", encoding="utf-8") as f:
             lines = f.readlines()
             dec_lines = [self.term.aliceblue(line) for line in lines]
 

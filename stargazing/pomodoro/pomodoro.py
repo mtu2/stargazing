@@ -11,6 +11,10 @@ from utils.logger import logger
 from utils.menu import Menu
 
 
+POMO_SETTING_TIMES = [(1200, 600), (1800, 600),
+                      (2400, 1200), (2700, 900), (3000, 600), (3600, 0)]
+
+
 class PomodoroStatus(Enum):
     INACTIVE = "inactive"
     WORK = "work"
@@ -118,14 +122,12 @@ class PomodoroMenu(Menu):
             self.status = PomodoroStatus.PAUSED_BREAK
 
     def load_settings(self) -> None:
-        pomo_settings0 = PomodoroSettings(1200, 600)
-        pomo_settings1 = PomodoroSettings(1800, 600)
-        pomo_settings2 = PomodoroSettings(2400, 1200)
-        pomo_settings3 = PomodoroSettings(2700, 900)
-        pomo_settings4 = PomodoroSettings(3000, 600)
-        self.pomo_settings = [pomo_settings0, pomo_settings1,
-                              pomo_settings2, pomo_settings3, pomo_settings4]
-        self.settings = pomo_settings0
+        for pomo_setting_time in POMO_SETTING_TIMES:
+            pomo_settings = PomodoroSettings(*pomo_setting_time)
+            self.pomo_settings.append(pomo_settings)
+
+            if not self.settings:
+                self.settings = pomo_settings
 
     def set_current_settings_and_close(self, pomo_settings: PomodoroSettings) -> None:
         self.settings = pomo_settings
@@ -160,12 +162,12 @@ class PomodoroMenu(Menu):
         if self.status in (PomodoroStatus.INACTIVE, PomodoroStatus.FINISHED_BREAK):
             return "START TIMER"
         elif self.status == PomodoroStatus.WORK:
-            return f"BREAK IN {str(self.timer)}"
+            return f"BREAK IN {self.timer.remaining_time}"
         elif self.status == PomodoroStatus.BREAK:
-            return f"POMODORO IN {str(self.timer)}"
+            return f"POMODORO IN {self.timer.remaining_time}"
         elif self.status == PomodoroStatus.PAUSED_WORK:
-            return f"PAUSED [WORK {str(self.timer)}]"
+            return f"PAUSED [WORK {self.timer.remaining_time}]"
         elif self.status == PomodoroStatus.PAUSED_BREAK:
-            return f"PAUSED [BREAK {str(self.timer)}]"
+            return f"PAUSED [BREAK {self.timer.remaining_time}]"
         elif self.status == PomodoroStatus.FINISHED_WORK:
             return "START BREAK"

@@ -51,17 +51,17 @@ class ProjectMenu(Menu):
 
         if self.create_new_project_name:
             new_project = Project(self.create_new_project_name)
-            self.projects.append(new_project)
+            insert_successful = database.insert_project(new_project)
 
-            on_item_select = partial(
-                self.set_current_project_and_close, new_project)
-            super().add_item(new_project.name,
-                             on_item_select, len(self.projects)-1)
+            if insert_successful:
+                self.projects.append(new_project)
 
-            self.create_new_project_name = ""
+                on_item_select = partial(
+                    self.set_current_project_and_close, new_project)
+                super().add_item(new_project.name,
+                                 on_item_select, len(self.projects)-1)
 
-            database.insert_project(new_project)
-
+        self.create_new_project_name = ""
         self.create_new_project_mode = False
         super().replace_item(len(self.projects), self.term.underline("create new project"),
                              self.start_create_new_project_mode)

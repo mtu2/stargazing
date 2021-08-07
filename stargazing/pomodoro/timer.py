@@ -45,6 +45,7 @@ class Timer():
             return time_diff, True
         return time_diff, False
 
-    def __str__(self) -> str:
+    @property
+    def remaining_time(self) -> str:
         elapsed_time_secs = math.floor(self.elapsed_time)
         return format_pomodoro_time(self.interval - elapsed_time_secs)

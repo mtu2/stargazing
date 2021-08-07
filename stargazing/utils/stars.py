@@ -3,30 +3,16 @@ import random
 import time
 from typing import List
 
-DEFAULT_STARS = ["            ° .         °     °    +  ° .    , *         .     .                        ",
-                 "        .°         o     ..  ° °       ° ,    ° .  o    ° *    ° . o. ° . .             ",
-                 "                °     .      °     .   .°o  °  *  . ° .. * .  + . .    .                ",
-                 " ° .    . .     .     .     ° °, *  ° .   +    ° ° ,° . °    , .°                       ",
-                 "        °    °     °      .      + °   °  *    ° .  ,          + .    ° * °  ° .        ",
-                 " °      .       . °     .  ° *    °,    ´ ° .       *   .      +  °  .°    .    ｡     . ",
-                 "    .     °    °     °,    .°o  *   +   ,       *  ° .   °   ° .        °        .      ",
-                 " ' .° °           +   ° .  +  °   *      ° . ,    , +     . °  . .     ,                ",
-                 "    ° + ° `  ,  o    .°   *       ° . °    °  * +     ° .  °    ° .     ,            °  ",
-                 "    .     °    °     °,    .°o  *   +   ,       *  ° .   °   ° .        °        .      ",
-                 "         °         ° .° *  °      .      + °   °  *    ° .  ,          + .    ° * °  ° .",
-                 " °      .       . °     .  ° *    °,    ´ ° .       *   .      +  °  .°    .    ｡     . ",
-                 "    .     °    °     °,    .°o  *   +   ,       *  ° .   °   ° .        °        .      ",
-                 " ° .° °           +   ° .  +  °  *        . , ,  +     . °  . .     ,                   ",
-                 " °, .     +   * ° , ° .  o°   ° +      .,     . °     ,     °          °                ",
-                 "           ° .   ⚹    *   °      ° . °            + °     °              °              "]
+
+DEFAULT_STARS_PATH = "res/stars.txt"
 
 
 class StarsGenerator():
-    """Generates printable stars for the backgorund of stargazing."""
+    """Generates printable stars for the background of stargazing."""
 
     def __init__(self) -> None:
-        self.stars = DEFAULT_STARS
-        self.last_printed_time = 0
+        self.stars = self.load_default_stars()
+        self.last_printed_time = time.time()
 
         self.gen_time_interval = 5
         self.gen_random_threshold = 0.1
@@ -34,11 +20,18 @@ class StarsGenerator():
 
     def get_stars(self) -> List[str]:
         curr_time = time.time()
+
         if curr_time - self.last_printed_time > self.gen_time_interval:
             self.last_printed_time = curr_time
             self.stars = self.gen_new_stars()
 
         return self.stars
+
+    def load_default_stars(self) -> List[str]:
+        with open(DEFAULT_STARS_PATH, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+            trimmed_lines = [line.rstrip("\n") for line in lines]
+            return trimmed_lines
 
     def gen_new_stars(self) -> List[str]:
         new_stars = []

@@ -12,12 +12,9 @@ def format_pomodoro_time(seconds: int, show_seconds=True) -> str:
     return s
 
 
-def format_project_time(seconds: int, show_seconds=False) -> str:
+def format_project_time(seconds: int) -> str:
     s = seconds
     h = s // 3600
     m = (s - h * 3600) // 60
 
-    if show_seconds:
-        s -= h * 3600 + m * 60
-        return f"{h}h {m}m {s}s"
-    return f"{h}h {m}m"
+    return f"{h}h {'0' + str(m) if m < 10 else m}m"

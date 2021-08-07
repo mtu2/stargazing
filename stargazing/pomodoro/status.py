@@ -26,7 +26,7 @@ class StatusMenu(Menu):
 
     def reset_timer_and_close(self) -> None:
         self.pomodoro_menu.reset_timer()
-        super().handle_close
+        super().handle_close()
 
     def setup_menu(self) -> None:
         super().add_item("finish timer", self.finish_timer_and_close)
