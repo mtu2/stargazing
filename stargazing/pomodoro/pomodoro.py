@@ -26,6 +26,10 @@ class PomodoroStatus(Enum):
 
 
 class PomodoroSettings():
+    """Timer settings for the pomodoro timer.
+
+    @param work_secs: Number of seconds for the work interval of the timer.
+    @param break_secs: Number of seconds for the break interval of the timer."""
 
     def __init__(self, work_secs: int, break_secs: int) -> None:
         self.work_secs = work_secs
@@ -37,6 +41,12 @@ class PomodoroSettings():
 
 
 class PomodoroMenu(Menu):
+    """Pomodoro manager, containing current pomodoro timer, status, autostart option and settings.
+    Contains the menu interface to change the timer settings of the pomodoro.
+
+    @param term: Instance of a Blessed terminal.
+    @param on_close: Callback function to run when menu is closed.
+    @param project_menu: Instance of a project menu."""
 
     def __init__(self, term: Terminal, on_close: Callable[[], None], project_menu: ProjectMenu) -> None:
         super().__init__(on_close, term.gray20_on_lavender)
@@ -66,7 +76,6 @@ class PomodoroMenu(Menu):
             else:
                 self.status = PomodoroStatus.FINISHED_WORK
         elif self.status in (PomodoroStatus.BREAK, PomodoroStatus.PAUSED_BREAK):
-            database.insert_pomodoro(self.project_menu.current, self.timer)
             self.timer = Timer(self.settings.work_secs)
 
             if self.autostart:
@@ -83,7 +92,6 @@ class PomodoroMenu(Menu):
             self.timer.start()
             self.status = PomodoroStatus.WORK
         elif self.status in (PomodoroStatus.BREAK, PomodoroStatus.PAUSED_BREAK, PomodoroStatus.FINISHED_BREAK):
-            database.insert_pomodoro(self.project_menu.current, self.timer)
             self.timer = Timer(self.settings.break_secs)
 
             self.timer.start()
@@ -150,15 +158,7 @@ class PomodoroMenu(Menu):
                 super().set_hover(index)
 
     @property
-    def current_pomodoro_settings_name(self) -> str:
-        return self.settings.name
-
-    @property
-    def current_status(self) -> str:
-        return self.status.value
-
-    @property
-    def current_display(self) -> str:
+    def timer_display(self) -> str:
         if self.status in (PomodoroStatus.INACTIVE, PomodoroStatus.FINISHED_BREAK):
             return "START TIMER"
         elif self.status == PomodoroStatus.WORK:
