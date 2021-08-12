@@ -48,8 +48,8 @@ class Menu():
         if index is None:
             index = len(self.items)
 
-        if index < 0 or index > len(self.items):
-            raise IndexError
+        if index < -len(self.items) or index > len(self.items):
+            raise IndexError(f"Entered invalid index: {index}")
 
         item = MenuItem(text, handle_item_select)
         self.items.insert(index, item)
@@ -59,7 +59,7 @@ class Menu():
     def replace_item(self, index, text: str, handle_item_select: Callable[[], None] = None) -> None:
         """Creates and replaces a menu item at the given index."""
 
-        if index < 0 or index >= len(self.items):
+        if index < -len(self.items) or index >= len(self.items):
             raise IndexError(f"Entered invalid index: {index}")
 
         item = MenuItem(text, handle_item_select)

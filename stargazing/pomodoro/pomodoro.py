@@ -1,18 +1,26 @@
+import os
+from ssl import ALERT_DESCRIPTION_UNRECOGNIZED_NAME
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
+
 from blessed import Terminal
 from enum import Enum
 from functools import partial
 from typing import Callable
+import time
 
 import data.database as database
+from audio.audio import AudioMenu
+from audio.audio_player import AudioPlayer
 from pomodoro.timer import Timer
 from project.project_menu import ProjectMenu
 from utils.format_funcs import format_pomodoro_time
 from utils.logger import logger
 from utils.menu import Menu
 
-
-POMO_SETTING_TIMES = [(1200, 600), (1800, 600),
-                      (2400, 1200), (2700, 900), (3000, 600), (3600, 0)]
+ALARM_START_PATH = "res/alarm_start.mp3"
+ALARM_FINISH_PATH = "res/alarm_finish.mp3"
+POMO_SETTING_TIMES = [(20 * 60, 10 * 60), (30 * 60, 10 * 60),
+                      (40 * 60, 20 * 60), (45 * 60, 15 * 60), (50 * 60, 10 * 60), (60 * 60, 0), (10, 10)]
 
 
 class PomodoroStatus(Enum):
@@ -48,11 +56,12 @@ class PomodoroMenu(Menu):
     @param on_close: Callback function to run when menu is closed.
     @param project_menu: Instance of a project menu."""
 
-    def __init__(self, term: Terminal, on_close: Callable[[], None], project_menu: ProjectMenu) -> None:
+    def __init__(self, term: Terminal, on_close: Callable[[], None], project_menu: ProjectMenu, audio_menu: AudioMenu) -> None:
         super().__init__(on_close, term.gray20_on_lavender)
 
         self.term = term
         self.project_menu = project_menu
+        self.audio_menu = audio_menu
 
         self.pomo_settings = []
         self.settings = None
@@ -65,11 +74,14 @@ class PomodoroMenu(Menu):
 
         self.setup_menu()
 
-    def finish_timer(self):
+    def finish_timer(self, disable_sound=False) -> None:
         if self.status in (PomodoroStatus.WORK, PomodoroStatus.PAUSED_WORK):
             database.insert_pomodoro(self.project_menu.current, self.timer)
             self.timer = Timer(self.settings.break_secs)
 
+            if not disable_sound:
+                self.__play_alarm_sound(ALARM_FINISH_PATH)
+            
             if self.autostart:
                 self.timer.start()
                 self.status = PomodoroStatus.BREAK
@@ -81,10 +93,13 @@ class PomodoroMenu(Menu):
             if self.autostart:
                 self.timer.start()
                 self.status = PomodoroStatus.WORK
+                
+                if not disable_sound:
+                    self.__play_alarm_sound(ALARM_START_PATH)
             else:
                 self.status = PomodoroStatus.FINISHED_BREAK
 
-    def reset_timer(self):
+    def reset_timer(self) -> None:
         if self.status in (PomodoroStatus.WORK, PomodoroStatus.PAUSED_WORK, PomodoroStatus.FINISHED_WORK):
             database.insert_pomodoro(self.project_menu.current, self.timer)
             self.timer = Timer(self.settings.work_secs)
@@ -111,6 +126,9 @@ class PomodoroMenu(Menu):
         if self.status in (PomodoroStatus.INACTIVE, PomodoroStatus.FINISHED_BREAK):
             self.timer.start()
             self.status = PomodoroStatus.WORK
+
+            self.__play_alarm_sound(ALARM_START_PATH)
+            
         elif self.status == PomodoroStatus.PAUSED_WORK:
             self.timer.continue_()
             self.status = PomodoroStatus.WORK
@@ -118,6 +136,7 @@ class PomodoroMenu(Menu):
         elif self.status == PomodoroStatus.FINISHED_WORK:
             self.timer.start()
             self.status = PomodoroStatus.BREAK
+
         elif self.status == PomodoroStatus.PAUSED_BREAK:
             self.timer.continue_()
             self.status = PomodoroStatus.BREAK
@@ -156,6 +175,18 @@ class PomodoroMenu(Menu):
 
             if pomo_setting == self.settings:
                 super().set_hover(index)
+
+    def __play_alarm_sound(self, path) -> None:
+        curr_vol = self.audio_menu.get_volume()
+        audio_decr = 15
+
+        self.audio_menu.set_volume(max(curr_vol - audio_decr, 0))
+        
+        alarm = AudioPlayer(path)
+        alarm.set_volume(curr_vol)
+        alarm.play()
+
+        self.audio_menu.set_volume(curr_vol) # THIS NEEDS TO BE ASYNC, AWAIT THE ALARM LENGTH
 
     @property
     def timer_display(self) -> str:

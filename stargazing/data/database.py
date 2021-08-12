@@ -1,103 +1,68 @@
+from collections import namedtuple
 from datetime import datetime, timedelta
-from sys import excepthook
-from typing import Dict, List
-import sqlite3
+from typing import List
 
 from pomodoro.timer import Timer
 from project.project import Project
 
 
-conn = sqlite3.connect("data/stargazing.db")
-c = conn.cursor()
+PomodoroRecord = namedtuple("PomodoroRecord", ["project_name", "start_time", "length"])
 
-time_format = "%d/%m/%Y %H:%M:%S"
+TIME_FORMAT = "%d/%m/%Y %H:%M:%S"
 
+PROJECT_DATABASE_PATH = "data/projects.txt"
+POMODORO_DATABASE_PATH = "data/pomodoros.txt"
 
-def create_tables() -> None:
-    c.execute("""CREATE TABLE project (
-                    name TEXT NOT NULL PRIMARY KEY
-                )""")
-    c.execute("""CREATE TABLE pomodoro (
-                    project_name TEXT,
-                    start_time TEXT,
-                    length REAL,
-                    FOREIGN KEY(project_name) REFERENCES project(name) ON UPDATE CASCADE
-                )""")
-
-
-def delete_tables() -> None:
-    c.execute("DROP TABLE project")
-    c.execute("DROP TABLE pomodoro")
+DATABASE_DELIMITER_CHAR = "|"
 
 
 def insert_project(project: Project) -> bool:
-    try:
-        with conn:
-            c.execute("INSERT INTO project VALUES(:name)",
-                      {"name": project.name})
-        return True
-    except sqlite3.IntegrityError:
+    with open(PROJECT_DATABASE_PATH, "r") as file:
+        lines = file.readlines()
+    
+    stripped_lines = [line.rstrip("\n") for line in lines]
+    if project.name in stripped_lines:
         return False
 
+    with open(PROJECT_DATABASE_PATH, "a") as file:
+        file.write(f"{project.name}\n")
+    
+    return True
 
 def get_all_projects() -> List[Project]:
-    c.execute("SELECT * FROM project")
-    names = c.fetchall()
-    projects = {name[0]: Project(name[0]) for name in names}
+    with open(PROJECT_DATABASE_PATH, "r") as file:
+        lines = file.readlines()
 
-    pomos = get_all_pomodoros()
+    stripped_lines = [line.rstrip("\n") for line in lines]
+    projects = {name: Project(name) for name in stripped_lines}
+
+    pomo_records = get_all_pomodoros()
     current_time = datetime.now()
-    current_time.year
 
-    for project_name, start_time, length in pomos:
-        start_time = datetime.strptime(start_time, time_format)
-        is_current_day = (start_time.year == current_time.year and start_time.month ==
-                          current_time.month and start_time.day == current_time.day)
-        projects[project_name].add_time(length, is_current_day)
+    for pomo_record in pomo_records:
+        is_current_day = (pomo_record.start_time.year == current_time.year and pomo_record.start_time.month ==
+                        current_time.month and pomo_record.start_time.day == current_time.day)
+        projects[pomo_record.project_name].add_time(pomo_record.length, is_current_day)
 
     return list(projects.values())
 
-
 def insert_pomodoro(project: Project, timer: Timer) -> None:
-    try:
-        with conn:
-            start_time = timer.local_start_time.strftime(time_format)
-            c.execute("INSERT INTO pomodoro VALUES(:project_name, :start_time, :length)", {
-                "project_name": project.name, "start_time": start_time, "length": timer.elapsed_time})
-        return True
-    except sqlite3.IntegrityError:
-        return False
+    with open(POMODORO_DATABASE_PATH, "a") as file:
+        start_time = timer.local_start_time.strftime(TIME_FORMAT)
+        file.write(f"{project.name}|{start_time}|{timer.elapsed_time}\n")
 
+def get_all_pomodoros() -> List[PomodoroRecord]:
+    with open(POMODORO_DATABASE_PATH, "r") as file:
+        lines = file.readlines()
 
-def get_all_pomodoros() -> Dict[str, float]:
-    c.execute("""SELECT * FROM pomodoro""")
-    pomodoros = c.fetchall()
-    return pomodoros
+    pomo_records = []
+    for line in lines:
+        project_name, start_time_str, length_str = line.split(DATABASE_DELIMITER_CHAR)
 
+        start_time = datetime.strptime(start_time_str, TIME_FORMAT)
+        length = float(length_str)
 
-if __name__ == "__main__":
-    # create_tables()
+        pomo_records.append(PomodoroRecord(project_name, start_time, float(length)))
 
-    test_project1 = Project("fnce30002")
-    insert_project(test_project1)
+    return pomo_records
 
-    test_project2 = Project("comp10001")
-    insert_project(test_project2)
-
-    test_project3 = Project("info20003")
-    insert_project(test_project3)
-
-    test_timer1 = Timer(1800)
-    t = datetime.now()
-
-    test_timer1.elapsed_time = 1200
-    insert_pomodoro(test_project1, test_timer1)
-    insert_pomodoro(test_project1, test_timer1)
-    insert_pomodoro(test_project1, test_timer1)
-
-    test_timer1.local_start_time = datetime.now() - timedelta(days=1)
-
-    insert_pomodoro(test_project1, test_timer1)
-    insert_pomodoro(test_project1, test_timer1)
-    insert_pomodoro(test_project2, test_timer1)
-    insert_pomodoro(test_project2, test_timer1)

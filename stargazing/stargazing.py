@@ -30,23 +30,24 @@ class Stargazing(Menu):
         self.project_menu = ProjectMenu(
             self.term, partial(self.close_submenu, (0, 1, 2)))
 
-        self.pomodoro_menu = PomodoroMenu(
-            self.term, partial(self.close_submenu, (3, 8), True), self.project_menu)
-        self.autostart_menu = AutoStartMenu(
-            self.term, partial(self.close_submenu, (4,)), self.pomodoro_menu)
-        self.status_menu = StatusMenu(
-            self.term, partial(self.close_submenu, (5, 8), True), self.pomodoro_menu)
-
         self.audio_menu = AudioMenu(
             self.term, partial(self.close_submenu, (6,)))
         self.volume_menu = VolumeMenu(
             self.term, partial(self.close_submenu, (7,)), self.audio_menu)
+
+        self.pomodoro_menu = PomodoroMenu(
+            self.term, partial(self.close_submenu, (3, 8), True), self.project_menu, self.audio_menu)
+        self.autostart_menu = AutoStartMenu(
+            self.term, partial(self.close_submenu, (4,)), self.pomodoro_menu)
+        self.status_menu = StatusMenu(
+            self.term, partial(self.close_submenu, (5, 8), True), self.pomodoro_menu)
 
         self.menu = None
         self.submenu = None
         self.focused_menu = self
 
         self.running = False
+        self.refresh_speed = 0.3
 
         self.stars_generator = StarsGenerator()
 
@@ -69,7 +70,7 @@ class Stargazing(Menu):
 
                 sys.stdout.flush()
 
-                inp = self.term.inkey(0.3)
+                inp = self.term.inkey(self.refresh_speed)
 
                 self.pomodoro_menu.update_timer()
 
@@ -88,8 +89,10 @@ class Stargazing(Menu):
                 elif inp and not inp.is_sequence:
                     self.focused_menu.handle_char_input(inp)
 
+        print("Exiting stargazing...")
+
     def handle_close(self) -> None:
-        self.pomodoro_menu.finish_timer()
+        self.pomodoro_menu.finish_timer(disable_sound=True)
         self.running = False
 
     def open_submenu(self, submenu: Menu) -> None:
@@ -129,7 +132,7 @@ class Stargazing(Menu):
                                      f"{self.term.bold('status')}: {self.pomodoro_menu.status.value}", partial(self.open_submenu, self.status_menu))
             elif index == 6:
                 super().replace_item(6,
-                                     f"{self.term.bold('playing')}: {self.audio_menu.playing}", partial(self.open_submenu, self.audio_menu))
+                                     f"{self.term.bold('playing')}: {self.audio_menu.playing_name}", partial(self.open_submenu, self.audio_menu))
             elif index == 7:
                 super().replace_item(7,
                                      f"{self.term.bold('volume')}: {self.audio_menu.volume}", partial(self.open_submenu, self.volume_menu))
@@ -164,7 +167,7 @@ class Stargazing(Menu):
         super().add_divider()
 
         super().add_item(
-            f"{self.term.bold('playing')}: {self.audio_menu.playing}", partial(self.open_submenu, self.audio_menu))
+            f"{self.term.bold('playing')}: {self.audio_menu.playing_name}", partial(self.open_submenu, self.audio_menu))
         super().add_item(
             f"{self.term.bold('volume')}: {self.audio_menu.volume}", partial(self.open_submenu, self.volume_menu))
 

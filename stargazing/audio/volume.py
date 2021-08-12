@@ -22,7 +22,7 @@ class VolumeMenu(Menu):
         self.setup_menu()
 
     def set_volume_and_close(self, option: bool) -> None:
-        self.audio_menu.volume = option
+        self.audio_menu.set_volume(option)
         super().handle_close()
 
     def setup_menu(self) -> None:

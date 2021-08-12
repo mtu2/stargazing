@@ -34,12 +34,12 @@ class ProjectMenu(Menu):
 
     def start_create_new_project_mode(self):
         self.create_new_project_mode = True
-        super().replace_item(len(self.projects),
+        super().replace_item(-1,
                              "> enter project name", self.finish_create_new_project_mode)
 
     def update_create_new_project_name(self, name):
         self.create_new_project_name = name
-        super().replace_item(len(self.projects), "> " + self.create_new_project_name +
+        super().replace_item(-1, "> " + self.create_new_project_name +
                              self.term.lightsteelblue1("█"), self.finish_create_new_project_mode)
 
     def cancel_create_new_project_mode(self):
@@ -59,11 +59,11 @@ class ProjectMenu(Menu):
                 on_item_select = partial(
                     self.set_current_project_and_close, new_project)
                 super().add_item(new_project.name,
-                                 on_item_select, len(self.projects)-1)
+                                 on_item_select, -1)
 
         self.create_new_project_name = ""
         self.create_new_project_mode = False
-        super().replace_item(len(self.projects), self.term.underline("create new project"),
+        super().replace_item(-1, self.term.underline("create new project"),
                              self.start_create_new_project_mode)
 
     def load_projects(self) -> None:
@@ -83,9 +83,8 @@ class ProjectMenu(Menu):
             if project == self.current:
                 super().set_hover(index)
 
-        index = super().add_item(self.term.underline("create new project"),
+        super().add_item(self.term.underline("create new project"),
                                  self.start_create_new_project_mode)
-        self.create_new_project_mode_index = index
 
     def handle_key_up(self) -> None:
         if self.create_new_project_mode:
@@ -116,6 +115,9 @@ class ProjectMenu(Menu):
     def handle_char_input(self, char: str) -> None:
         if not self.create_new_project_mode:
             super().handle_char_input(char)
+            return
+
+        if char == database.DATABASE_DELIMITER_CHAR:
             return
 
         new_name = self.create_new_project_name + char
