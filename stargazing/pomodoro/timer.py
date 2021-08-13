@@ -1,7 +1,7 @@
 from datetime import datetime
 import math
 import time
-from typing import Union
+from typing import Tuple
 
 from utils.format_funcs import format_pomodoro_time
 
@@ -28,7 +28,7 @@ class Timer():
     def pause(self) -> None:
         self.paused_time = time.time()
 
-    def update(self) -> Union[int, bool]:
+    def update(self) -> Tuple[int, bool]:
         if not self.start_time:
             return 0, False
 

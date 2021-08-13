@@ -3,3 +3,5 @@ info20003 database sys
 econ30022 exp econ
 econ30002 econ dev
 stargazing
+misc
+work & internships

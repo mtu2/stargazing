@@ -1,12 +1,13 @@
-from __future__ import annotations # allow typing of own class inside its class
+from __future__ import annotations  # allow typing of own class inside its class
 from typing import Iterable, Union
 
 import pafy
-import pafy.backend_youtube_dl # prevent lazy importing
+import pafy.backend_youtube_dl  # prevent lazy importing
 import vlc
 
 from utils.helper_funcs import check_iterable
 from utils.logger import logger
+
 
 class AudioPlayer():
 
@@ -19,12 +20,12 @@ class AudioPlayer():
 
         if loop:
             self.player.set_playback_mode(vlc.PlaybackMode.loop)
-        
+
         self.player.set_media_list(self.media_list)
 
     def create_media_list(self, sources: Iterable[str]) -> vlc.MediaList:
         media_list = self.vlc_instance.media_list_new()
-        
+
         for source in sources:
             media = self.vlc_instance.media_new(source)
             media.add_option(":no-video")
@@ -49,10 +50,11 @@ class AudioPlayer():
 
 
 class YoutubeAudioPlayer(AudioPlayer):
-    
+
     def __init__(self, youtube_urls: Union[str, Iterable[str]], loop=False) -> None:
-        
-        self.video_titles, self.playurls = self.__get_youtube_titles_and_playurls(youtube_urls)
+
+        self.video_titles, self.playurls = self.__get_youtube_titles_and_playurls(
+            youtube_urls)
         super().__init__(self.playurls, loop)
 
     def __get_youtube_titles_and_playurls(self, youtube_urls: Union[str, Iterable[str]]):
@@ -75,5 +77,6 @@ class YoutubeAudioPlayer(AudioPlayer):
             yt_audio_player = YoutubeAudioPlayer(youtube_urls, loop)
             return yt_audio_player
         except Exception as e:
-            logger.error(f"Failed to create YoutubeAudioPlayer with inputs: {youtube_urls}, {loop}. Full message: {e}")
+            logger.error(
+                f"Failed to create YoutubeAudioPlayer with inputs: {youtube_urls}, {loop}. Full message: {e}")
             return None
