@@ -51,15 +51,23 @@ class AudioPlayer():
 class YoutubeAudioPlayer(AudioPlayer):
     
     def __init__(self, youtube_urls: Union[str, Iterable[str]], loop=False) -> None:
+        
+        self.video_titles, self.playurls = self.__get_youtube_titles_and_playurls(youtube_urls)
+        super().__init__(self.playurls, loop)
+
+    def __get_youtube_titles_and_playurls(self, youtube_urls: Union[str, Iterable[str]]):
+        titles = []
         playurls = []
 
         for youtube_url in check_iterable(youtube_urls):
             video = pafy.new(youtube_url)
+            titles.append(video.title)
+
             best = video.getbest()
             playurl = best.url
             playurls.append(playurl)
-            
-        super().__init__(playurls, loop)     
+
+        return titles, playurls
 
     @staticmethod
     def safe_create(youtube_urls: Union[str, Iterable[str]], loop=False) -> Union[None, YoutubeAudioPlayer]:

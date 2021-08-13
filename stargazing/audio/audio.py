@@ -7,7 +7,7 @@ import threading
 import urllib.request
 
 from audio.audio_player import AudioPlayer, YoutubeAudioPlayer
-from utils.helper_funcs import silent_stderr
+from utils.helper_funcs import silent_stderr, start_daemon_thread
 from utils.menu import Menu
 
 YOUTUBE_URLS = {
@@ -30,18 +30,11 @@ class AudioMenu(Menu):
 
         self.term = term
         
-        self.audio_players = {name: None for name in YOUTUBE_URLS}
-        self.audio_players["offline"] = None
+        self.loaded_players = {name: None for name in YOUTUBE_URLS}
+        start_daemon_thread(target=self.__load_audio_players)
         
-        self.loaded_player_names = set()
-        self.loaded_player_names.add("offline")
-
-        thread = threading.Thread(target=self.__load_audio_players)
-        thread.setDaemon(True)
-        thread.start()
-        
+        self.playing = None
         self.playing_name = "offline"
-        self.playing = self.audio_players["offline"]
 
         self.volume = 100
 
@@ -49,19 +42,11 @@ class AudioMenu(Menu):
         self.search_youtube_query = ""
 
         self.setup_menu()
-
-    def play(self) -> None:
-        if self.playing:
-            self.playing.play()
-
-    def pause(self) -> None:
-        if self.playing:
-            self.playing.pause()
-
+    
     def stop(self) -> None:
         if self.playing:
             self.playing.stop()
-    
+
     def set_volume(self, vol: int) -> None:
         self.volume = vol
         if self.playing:
@@ -70,25 +55,49 @@ class AudioMenu(Menu):
     def get_volume(self) -> int:
         return self.volume
 
-    def set_audio_and_close(self, audio_name: Union[str, None]) -> None:
+    def set_offline_and_close(self) -> None:
+        self.stop()
+        self.playing = None
+        super().handle_close()
+
+    def set_loaded_player_and_close(self, loaded_player_name: str) -> None:
+        """Stops the current player, loads the given player name and closes the menu"""
+
         self.stop()
 
-        if audio_name not in self.loaded_player_names:
-            self.search_and_set_youtube_audio(YOUTUBE_URLS[audio_name])
-            return
+        # If player has not loaded (not enough time or error)
+        if not self.loaded_players[loaded_player_name]:
+            start_daemon_thread(target=self.create_and_set_youtube_player_from_url, 
+                                args=[loaded_player_name, YOUTUBE_URLS[loaded_player_name]])
+            # TODO: set self.loaded_players[loaded_player_name] with this player
+            
+        # If player has loaded
+        else:
+            self.playing = self.loaded_players[loaded_player_name]
+            self.playing_name = loaded_player_name
 
-        self.playing = self.audio_players[audio_name]
-        self.playing_name = audio_name
-
-        if self.playing:
             self.playing.set_volume(self.volume)
             self.playing.play()
-        else:
-            self.playing = ""
 
         super().handle_close()
 
-    def search_and_set_youtube_audio(self, search_query: str) -> None:
+    def create_and_set_youtube_player_from_url(self, player_name: str, youtube_url: str) -> str:
+
+        self.stop()
+
+        self.playing_name = "loading audio..."
+        self.playing = YoutubeAudioPlayer.safe_create(youtube_url, True)
+        
+        if self.playing:
+            self.playing_name = self.playing.video_titles[0]
+            self.playing.set_volume(self.volume)
+            self.playing.play()
+        else:
+            self.playing_name = "error loading audio"
+
+    def create_and_set_youtube_player_from_query(self, search_query: str) -> str:
+        self.playing_name = "searching youtube..."
+
         search = search_query.replace(" ", "+")
         youtube_search = f"https://www.youtube.com/results?search_query={search}"
 
@@ -96,13 +105,19 @@ class AudioMenu(Menu):
         video_ids = re.findall(r"watch\?v=(\S{11})", html.read().decode())
         url = "https://www.youtube.com/watch?v=" + video_ids[0]
         
-        self.stop()
+        self.create_and_set_youtube_player_from_url(search_query, url)
 
-        self.playing = YoutubeAudioPlayer(url, True)
-        self.playing_name = search
+    def __load_audio_players(self) -> None:
+        silent_yt_audio_init = silent_stderr(lambda url: YoutubeAudioPlayer.safe_create(url, True))
 
-        self.playing.set_volume(self.volume)
-        self.play()
+        with concurrent.futures.ThreadPoolExecutor() as exec:
+            futures_to_name = {exec.submit(silent_yt_audio_init, url): name for name, url in YOUTUBE_URLS.items()}
+
+            for future in concurrent.futures.as_completed(futures_to_name):
+                name = futures_to_name[future]
+                player = future.result()
+
+                self.loaded_players[name] = player
 
     def start_search_youtube_mode(self):
         self.search_youtube_mode = True
@@ -122,10 +137,8 @@ class AudioMenu(Menu):
         self.search_youtube_query = self.search_youtube_query.strip()
 
         if self.search_youtube_query:
-            thread = threading.Thread(target=self.search_and_set_youtube_audio, args=(self.search_youtube_query,))
-            thread.setDaemon(True)
-            thread.start()
-            
+            self.stop()
+            start_daemon_thread(target=self.create_and_set_youtube_player_from_query, args=(self.search_youtube_query,))
             super().handle_close()
 
         self.search_youtube_query = ""
@@ -133,26 +146,12 @@ class AudioMenu(Menu):
         super().replace_item(-1,
                              self.term.underline("search youtube"), self.start_search_youtube_mode)
 
-    def __load_audio_players(self) -> None:
-        silent_yt_audio_init = silent_stderr(lambda url: YoutubeAudioPlayer.safe_create(url, True))
-
-        with concurrent.futures.ThreadPoolExecutor() as exec:
-            futures_to_name = {exec.submit(silent_yt_audio_init, url): name for name, url in YOUTUBE_URLS.items()}
-
-            for future in concurrent.futures.as_completed(futures_to_name):
-                name = futures_to_name[future]
-                player = future.result()
-
-                self.audio_players[name] = player
-
-                if player:
-                    self.loaded_player_names.add(name)
-
     def setup_menu(self) -> None:
-        for audio_name in self.audio_players:
-            on_item_select = partial(
-                self.set_audio_and_close, audio_name)
-            super().add_item(audio_name, on_item_select)
+        super().add_item("offline", self.set_offline_and_close)
+
+        for loaded_player_name in self.loaded_players:
+            on_item_select = partial(self.set_loaded_player_and_close, loaded_player_name)
+            super().add_item(loaded_player_name, on_item_select)
 
         super().add_item(self.term.underline("search youtube"),
                                  self.start_search_youtube_mode)
