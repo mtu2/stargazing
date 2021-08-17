@@ -1,11 +1,12 @@
 from __future__ import annotations
 from enum import Enum
+from typing import List
 
 import data.database as database
-from audio.audio_controller import AudioController
+import audio.audio_controller
 from audio.audio_player import AudioPlayer
 from pomodoro.timer import Timer
-from project.project_controller import ProjectController
+import project.project_controller
 from utils.format_funcs import format_pomodoro_time
 
 ALARM_START_PATH = "res/alarm_start.mp3"
@@ -51,13 +52,15 @@ class PomodoroController():
     @param on_close: Callback function to run when menu is closed.
     @param project_controller: Instance of a project menu."""
 
-    def __init__(self, project_controller: ProjectController, audio_controller: AudioController) -> None:
+    def __init__(self, project_controller: project.project_controller.ProjectController, audio_controller: audio.audio_controller.AudioController,
+                 interval_time: PomodoroIntervalSettings = None, last_autostart=True) -> None:
 
         self.project_controller = project_controller
         self.audio_controller = audio_controller
 
-        self.interval_settings = PomodoroIntervalSettings(2400, 600)
-        self.autostart_setting = True
+        self.interval_settings = interval_time if interval_time else PomodoroIntervalSettings(
+            2400, 600)
+        self.autostart_setting = last_autostart
 
         self.timer = Timer(self.interval_settings.work_secs)
         self.status = PomodoroStatus.INACTIVE

@@ -42,10 +42,11 @@ def get_all_projects() -> List[Project]:
     current_time = datetime.now()
 
     for pomo_record in pomo_records:
-        is_current_day = (pomo_record.start_time.year == current_time.year and pomo_record.start_time.month ==
-                          current_time.month and pomo_record.start_time.day == current_time.day)
-        projects[pomo_record.project_name].add_time(
-            pomo_record.length, is_current_day)
+        if pomo_record.project_name in projects:
+            is_current_day = (pomo_record.start_time.year == current_time.year and pomo_record.start_time.month ==
+                              current_time.month and pomo_record.start_time.day == current_time.day)
+            projects[pomo_record.project_name].add_time(
+                pomo_record.length, is_current_day)
 
     return list(projects.values())
 

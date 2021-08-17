@@ -2,11 +2,9 @@ from blessed import Terminal
 from functools import partial
 from typing import Callable
 
+import config.config as config
 from pomodoro.pomodoro_controller import PomodoroController, PomodoroIntervalSettings
 from utils.menu import Menu
-
-INTERVAL_TIMES = [(20 * 60, 10 * 60), (30 * 60, 10 * 60), (40 * 60, 20 * 60),
-                  (45 * 60, 15 * 60), (50 * 60, 10 * 60), (60 * 60, 0), (10, 10)]
 
 
 class IntervalMenu(Menu):
@@ -28,8 +26,9 @@ class IntervalMenu(Menu):
         self.setup_menu()
 
     def __load_interval_settings(self) -> None:
+        interval_times = config.get_interval_times()
         settings = [PomodoroIntervalSettings(
-            *interval_time) for interval_time in INTERVAL_TIMES]
+            *interval_time) for interval_time in interval_times]
         return settings
 
     def set_interval_settings_and_close(self, interval_settings: PomodoroIntervalSettings) -> None:

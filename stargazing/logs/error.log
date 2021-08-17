@@ -10,3 +10,8 @@
 2021-08-13 19:28:55,292 - audio_player - safe_create - ERROR - Failed to create YoutubeAudioPlayer with inputs: https://www.youtube.com/watch?v=erG5rgNYSdk&ab_channel=WeezerVEVO, True. Full message: 'dislike_count'
 2021-08-13 23:04:05,831 - audio_player - safe_create - ERROR - Failed to create YoutubeAudioPlayer with inputs: https://www.youtube.com/watch?v=9YO5ruvFSCU&ab_channel=100gecs, True. Full message: 'dislike_count'
 2021-08-13 23:16:26,251 - audio_player - safe_create - ERROR - Failed to create YoutubeAudioPlayer with inputs: https://www.youtube.com/watch?v=erG5rgNYSdk&ab_channel=WeezerVEVO, True. Full message: 'NoneType' object has no attribute 'url'
+2021-08-17 17:29:06,190 - audio_player - safe_create - ERROR - Failed to create YoutubeAudioPlayer with inputs: lofi radio, True. Full message: Need 11 character video id or the URL of the video. Got //lofi radio
+2021-08-17 17:29:11,650 - audio_player - safe_create - ERROR - Failed to create YoutubeAudioPlayer with inputs: lofi radio, True. Full message: Need 11 character video id or the URL of the video. Got //lofi radio
+2021-08-17 17:29:33,915 - audio_player - safe_create - ERROR - Failed to create YoutubeAudioPlayer with inputs: lofi radio, True. Full message: Need 11 character video id or the URL of the video. Got //lofi radio
+2021-08-17 17:29:35,374 - audio_player - safe_create - ERROR - Failed to create YoutubeAudioPlayer with inputs: https://www.youtube.com/watch?v=erG5rgNYSdk&ab_channel=WeezerVEVO, True. Full message: 'dislike_count'
+2021-08-17 17:40:02,060 - audio_player - safe_create - ERROR - Failed to create YoutubeAudioPlayer with inputs: https://www.youtube.com/watch?v=VMAPTo7RVCo&ab_channel=CalmedByNature, True. Full message: 'dislike_count'

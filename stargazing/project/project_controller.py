@@ -41,9 +41,14 @@ class Project():
 
 class ProjectController():
 
-    def __init__(self) -> None:
+    def __init__(self, project_name="") -> None:
         self.projects = self.__load_projects()
         self.current = self.projects[0]
+        if project_name:
+            for project in self.projects:
+                if project.name == project_name:
+                    self.current = project
+                    break
         self.todays_total_time = self.__load_todays_total_time()
 
     def set_current_project(self, project: Project) -> None:

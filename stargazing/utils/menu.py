@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Union
 
 from utils.helper_funcs import check_null_fn
 
@@ -6,12 +6,18 @@ from utils.helper_funcs import check_null_fn
 class MenuItem():
     """Item for the menu user interface.
 
-    @param text: Display text for the item
+    @param text: Display text for the item, either a string or a function that returns a string
     @param handle_select: Callback function when the item is selected"""
 
-    def __init__(self, text: str, handle_select: Callable[[], None] = None):
-        self.text = text
+    def __init__(self, text: Union[str, Callable[[], str]], handle_select: Callable[[], None] = None):
+        self._text = text
         self.handle_select = check_null_fn(handle_select)
+
+    @property
+    def text(self) -> str:
+        if isinstance(self._text, str):
+            return self._text
+        return self._text()
 
 
 class Menu():
@@ -41,7 +47,8 @@ class Menu():
     # Create menu methods
     # ========================================================
 
-    def add_item(self, text: str, handle_item_select: Callable[[], None] = None, index: int = None) -> int:
+    def add_item(self, text: Union[str, Callable[[], str]], handle_item_select: Callable[[], None] = None,
+                 index: int = None) -> int:
         """Creates and adds a menu item at the given index. If no index is given, the item 
         is added to the bottom of the menu. Returns the index of the added item."""
 
@@ -56,7 +63,8 @@ class Menu():
 
         return index
 
-    def replace_item(self, index, text: str, handle_item_select: Callable[[], None] = None) -> None:
+    def replace_item(self, index: int, text: Union[str, Callable[[], str]],
+                     handle_item_select: Callable[[], None] = None) -> None:
         """Creates and replaces a menu item at the given index."""
 
         if index < -len(self.items) or index >= len(self.items):
