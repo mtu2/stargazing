@@ -25,7 +25,7 @@ from utils.stars import StarsGenerator
 GAZING_PATH = "res/gazing.txt"
 
 
-class Stargazing(Menu):
+class App(Menu):
 
     def __init__(self) -> None:
 

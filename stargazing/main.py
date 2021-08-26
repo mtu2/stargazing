@@ -1,10 +1,10 @@
-import stargazing
+import app
 
 
 def main():
     """Main entry point for script"""
 
-    x = stargazing.Stargazing()
+    x = app.App()
     x.start()
 
 
