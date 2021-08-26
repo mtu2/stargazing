@@ -3,24 +3,24 @@ from functools import partial
 import sys
 import os.path as path
 
-import audio.audio_controller as audio_ac
-import audio.player_menu as audio_pm
-import audio.volume_menu as audio_vm
+import stargazing.audio.audio_controller as audio_ac
+import stargazing.audio.player_menu as audio_pm
+import stargazing.audio.volume_menu as audio_vm
 
-import config.config as config
+import stargazing.config.config as config
 
-import pomodoro.autostart_menu as pomo_am
-import pomodoro.interval_menu as pomo_im
-import pomodoro.pomodoro_controller as pomo_pc
-import pomodoro.status_menu as pomo_sm
+import stargazing.pomodoro.autostart_menu as pomo_am
+import stargazing.pomodoro.interval_menu as pomo_im
+import stargazing.pomodoro.pomodoro_controller as pomo_pc
+import stargazing.pomodoro.status_menu as pomo_sm
 
-import project.project_controller as proj_pc
-import project.project_menu as proj_pm
+import stargazing.project.project_controller as proj_pc
+import stargazing.project.project_menu as proj_pm
 
-from utils.logger import logger
-from utils.menu import Menu
-import utils.print_funcs as print_funcs
-from utils.stars import StarsGenerator
+from stargazing.utils.logger import logger
+from stargazing.utils.menu import Menu
+import stargazing.utils.print_funcs as print_funcs
+from stargazing.utils.stars import StarsGenerator
 
 
 GAZING_PATH = f"{path.dirname(path.abspath(__file__))}/res/gazing.txt"

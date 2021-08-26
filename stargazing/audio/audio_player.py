@@ -5,8 +5,8 @@ import pafy
 import pafy.backend_youtube_dl  # prevent lazy importing
 import vlc
 
-from utils.helper_funcs import check_iterable
-from utils.logger import logger
+from stargazing.utils.helper_funcs import check_iterable
+from stargazing.utils.logger import logger
 
 
 class AudioPlayer():

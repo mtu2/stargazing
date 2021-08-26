@@ -2,9 +2,9 @@ import concurrent.futures
 import re
 import urllib.request
 
-import audio.audio_player as audio_ap
-import config.config as config
-from utils.helper_funcs import silent_stderr, start_daemon_thread
+import stargazing.audio.audio_player as audio_ap
+import stargazing.config.config as config
+from stargazing.utils.helper_funcs import silent_stderr, start_daemon_thread
 
 
 class AudioController():

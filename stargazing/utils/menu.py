@@ -1,6 +1,6 @@
 from typing import Callable, Union
 
-from utils.helper_funcs import check_null_fn
+from stargazing.utils.helper_funcs import check_null_fn
 
 
 class MenuItem():

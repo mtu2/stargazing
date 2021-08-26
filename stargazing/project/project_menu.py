@@ -2,9 +2,9 @@ from blessed import Terminal
 from functools import partial
 from typing import Callable
 
-import data.database as database
-import project.project_controller as proj_pc
-from utils.menu import Menu
+import stargazing.data.database as database
+import stargazing.project.project_controller as proj_pc
+from stargazing.utils.menu import Menu
 
 
 class ProjectMenu(Menu):

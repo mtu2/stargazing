@@ -3,9 +3,9 @@ from functools import partial
 import sys
 import os.path as path
 
-import stargazing.audio.audio_controller as audio_ac
-import stargazing.audio.player_menu as audio_pm
-import stargazing.audio.volume_menu as audio_vm
+import audio.audio_controller as audio_ac
+import audio.player_menu as audio_pm
+import audio.volume_menu as audio_vm
 
 import config.config as config
 

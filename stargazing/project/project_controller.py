@@ -2,8 +2,8 @@ from __future__ import annotations
 import math
 from typing import List, Union
 
-import data.database as database
-from utils.format_funcs import format_project_time
+import stargazing.data.database as database
+from stargazing.utils.format_funcs import format_project_time
 
 
 class Project():

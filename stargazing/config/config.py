@@ -3,7 +3,7 @@ from typing import List, Tuple
 import ujson
 import os.path as path
 
-import pomodoro.pomodoro_controller as pomo_pc
+import stargazing.pomodoro.pomodoro_controller as pomo_pc
 
 CONFIG_FILE_PATH = f"{path.dirname(path.abspath(__file__))}/../config/settings.json"
 

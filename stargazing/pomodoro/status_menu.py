@@ -1,8 +1,8 @@
 from blessed import Terminal
 from typing import Callable
 
-import pomodoro.pomodoro_controller as pomo_pc
-from utils.menu import Menu
+import stargazing.pomodoro.pomodoro_controller as pomo_pc
+from stargazing.utils.menu import Menu
 
 
 class StatusMenu(Menu):

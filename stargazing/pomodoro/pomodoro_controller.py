@@ -3,12 +3,12 @@ from enum import Enum
 from typing import List
 import os.path as path
 
-import data.database as database
-import audio.audio_controller as audio_ac
-import audio.audio_player as audio_ap
-import pomodoro.timer as pomo_t
-import project.project_controller as proj_pc
-from utils.format_funcs import format_pomodoro_time
+import stargazing.data.database as database
+import stargazing.audio.audio_controller as audio_ac
+import stargazing.audio.audio_player as audio_ap
+import stargazing.pomodoro.timer as pomo_t
+import stargazing.project.project_controller as proj_pc
+from stargazing.utils.format_funcs import format_pomodoro_time
 
 ALARM_START_PATH = f"{path.dirname(path.abspath(__file__))}/../res/alarm_start.mp3"
 ALARM_FINISH_PATH = f"{path.dirname(path.abspath(__file__))}/../res/alarm_finish.mp3"

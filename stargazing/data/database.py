@@ -3,8 +3,8 @@ from datetime import datetime, timedelta
 from typing import List, Union
 import os.path as path
 
-import pomodoro.timer as pomo_t
-import project.project_controller as project_pc
+import stargazing.pomodoro.timer as pomo_t
+import stargazing.project.project_controller as project_pc
 
 PomodoroRecord = namedtuple(
     "PomodoroRecord", ["project_name", "start_time", "length"])

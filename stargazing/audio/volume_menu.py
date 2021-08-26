@@ -2,8 +2,8 @@ from blessed import Terminal
 from functools import partial
 from typing import Callable
 
-import audio.audio_controller as audio_ac
-from utils.menu import Menu
+import stargazing.audio.audio_controller as audio_ac
+from stargazing.utils.menu import Menu
 
 
 class VolumeMenu(Menu):

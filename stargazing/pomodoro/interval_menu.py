@@ -2,9 +2,9 @@ from blessed import Terminal
 from functools import partial
 from typing import Callable
 
-import config.config as config
-import pomodoro.pomodoro_controller as pomo_pc
-from utils.menu import Menu
+import stargazing.config.config as config
+import stargazing.pomodoro.pomodoro_controller as pomo_pc
+from stargazing.utils.menu import Menu
 
 
 class IntervalMenu(Menu):

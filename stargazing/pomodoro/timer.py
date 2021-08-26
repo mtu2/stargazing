@@ -3,7 +3,7 @@ import math
 import time
 from typing import Tuple
 
-from utils.format_funcs import format_pomodoro_time
+from stargazing.utils.format_funcs import format_pomodoro_time
 
 
 class Timer():
