@@ -1,4 +1,4 @@
-import stargazing.app as app
+import app
 
 
 def run_app():
