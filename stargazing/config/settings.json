@@ -1,8 +1,9 @@
 {
     "saved_youtube_player_urls": {
         "lofi radio": "https:\/\/www.youtube.com\/watch?v=5qap5aO4i9A&ab_channel=LofiGirl",
-        "coffee shop": "https:\/\/www.youtube.com\/watch?v=VMAPTo7RVCo&ab_channel=CalmedByNature",
-        "island in the sun": "https:\/\/www.youtube.com\/watch?v=erG5rgNYSdk&ab_channel=WeezerVEVO"
+        "ambient radio": "https:\/\/www.youtube.com\/watch?v=qt_urUz42vI&ab_channel=MusicLab",
+        "tokyo cafe radio": "https:\/\/www.youtube.com\/watch?v=6uddGul0oAc&ab_channel=CafeMusicBGMchannel",
+        "rainy jazz radio": "https:\/\/www.youtube.com\/watch?v=89XPBelvrZk&ab_channel=CafeMusicBGMchannel"
     },
     "interval_times": [
         [
@@ -30,11 +31,11 @@
             0
         ]
     ],
-    "last_project_name": "stargazing",
+    "last_project_name": "default",
     "last_interval_time": [
         3600,
         0
     ],
-    "last_autostart": true,
-    "last_volume": 70
+    "last_autostart": false,
+    "last_volume": 80
 }
