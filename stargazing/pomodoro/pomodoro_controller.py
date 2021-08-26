@@ -14,7 +14,7 @@ ALARM_FINISH_PATH = "res/alarm_finish.mp3"
 
 
 class PomodoroIntervalSettings():
-    """Timer settings for the pomodoro timer.
+    """Interval settings for the pomodoro timer.
 
     @param work_secs: Number of seconds for the work interval of the timer.
     @param break_secs: Number of seconds for the break interval of the timer."""
@@ -45,12 +45,10 @@ class PomodoroStatus(Enum):
 
 
 class PomodoroController():
-    """Pomodoro manager, containing current pomodoro timer, status, autostart option and settings.
-    Contains the menu interface to change the timer settings of the pomodoro.
+    """Pomodoro manager, containing current pomodoro timer, status, autostart option and interval settings.
 
-    @param term: Instance of a Blessed terminal.
-    @param on_close: Callback function to run when menu is closed.
-    @param project_controller: Instance of a project menu."""
+    @param project_controller: Instance of a project controller.
+    @param audio_controller: Instance of an audio controller."""
 
     def __init__(self, project_controller: project.project_controller.ProjectController, audio_controller: audio.audio_controller.AudioController,
                  interval_time: PomodoroIntervalSettings = None, last_autostart=True) -> None:
@@ -145,7 +143,7 @@ class PomodoroController():
     def set_interval_settings(self, interval_settings: PomodoroIntervalSettings) -> None:
         self.interval_settings = interval_settings
 
-        # Edit current timer settings without reseting
+        # Edit current timer settings without resetting
         if self.status in (PomodoroStatus.INACTIVE, PomodoroStatus.WORK, PomodoroStatus.PAUSED_WORK):
             self.timer.interval = interval_settings.work_secs
         else:
@@ -161,7 +159,7 @@ class PomodoroController():
         alarm.set_volume(curr_vol)
         alarm.play()
 
-        # THIS NEEDS TO BE ASYNC, AWAIT THE ALARM LENGTH
+        # TODO: this needs to be async - wait for the alarm length
         self.audio_controller.set_volume(curr_vol)
 
     @property

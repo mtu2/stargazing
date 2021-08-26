@@ -8,10 +8,11 @@ from utils.menu import Menu
 
 
 class ProjectMenu(Menu):
-    """Project menu user interface - handles switching between and creating new projects.
+    """Menu interface to create and switch between projects.
 
-    @param term: Instance of a blessed terminal.
-    @param on_close: Callback function to run when the project menu is closed."""
+    @param term: Instance of a Blessed terminal.
+    @param on_close: Callback function to run when menu is closed.
+    @param pomodoro_controller: Instance of a project controller."""
 
     def __init__(self, term: Terminal, on_close: Callable[[], None], project_controller: ProjectController) -> None:
         super().__init__(on_close, term.gray20_on_lavender)

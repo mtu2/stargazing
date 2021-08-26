@@ -7,11 +7,11 @@ from utils.menu import Menu
 
 
 class AutoStartMenu(Menu):
-    """Menu interface to change the auto start option of the pomodoro.
+    """Menu interface to change the auto start option of the pomodoro timer.
 
     @param term: Instance of a Blessed terminal.
     @param on_close: Callback function to run when menu is closed.
-    @param pomodoro_menu: Instance of a pomodoro menu."""
+    @param pomodoro_controller: Instance of a pomodoro controller."""
 
     def __init__(self, term: Terminal, on_close: Callable[[], None], pomodoro_controller: PomodoroController) -> None:
         super().__init__(on_close, term.gray20_on_lavender)

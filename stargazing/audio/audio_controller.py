@@ -8,6 +8,10 @@ from utils.helper_funcs import silent_stderr, start_daemon_thread
 
 
 class AudioController():
+    """Audio manager, pre-loads the audio players specified in the settings.json and allows audio players to be created and stream via YouTube search
+
+    @param volume: Initial volume level."""
+
     def __init__(self, volume=100) -> None:
         self.saved_youtube_player_urls = config.config.get_saved_youtube_player_urls()
         self.loaded_players = {

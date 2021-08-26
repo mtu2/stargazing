@@ -7,11 +7,11 @@ from utils.menu import Menu
 
 
 class VolumeMenu(Menu):
-    """Menu interface to change the volume of the audio player.
+    """Menu interface to change the volume of the audio controller.
 
     @param term: Instance of a Blessed terminal.
     @param on_close: Callback function to run when menu is closed.
-    @param audio_menu: Instance of an audio player menu."""
+    @param audio_controller: Instance of an audio controller."""
 
     def __init__(self, term: Terminal, on_close: Callable[[], None], audio_controller: AudioController) -> None:
         super().__init__(on_close, term.gray20_on_lavender)

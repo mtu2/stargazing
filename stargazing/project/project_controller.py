@@ -40,6 +40,9 @@ class Project():
 
 
 class ProjectController():
+    """Project manager, contains the currently loaded project and allows new projects to be created.
+
+    @param project_name: Name of the default project to be loaded."""
 
     def __init__(self, project_name="") -> None:
         self.projects = self.__load_projects()

@@ -8,3 +8,4 @@ stargazing
 misc
 melbourne hack
 econ30022 experimental econo
+coding self study

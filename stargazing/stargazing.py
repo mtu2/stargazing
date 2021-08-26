@@ -106,6 +106,16 @@ class Stargazing(Menu):
         self.pomodoro_controller.finish_timer(disable_sound=True)
         self.running = False
 
+    def handle_char_input(self, char) -> None:
+        if char.lower() == "r":
+            print(self.term.home + self.term.clear)
+
+            self.print_logo()
+            self.print_gazing()
+            self.print_stars()
+        else:
+            super().handle_char_input(char)
+
     def open_submenu(self, submenu: Menu) -> None:
         self.submenu = submenu
         self.focused_menu = self.submenu

@@ -8,12 +8,11 @@ from utils.menu import Menu
 
 
 class IntervalMenu(Menu):
-    """Pomodoro manager, containing current pomodoro timer, status, autostart option and settings.
-    Contains the menu interface to change the timer settings of the pomodoro.
+    """Menu interface to change the interval settings of the pomodoro timer.
 
     @param term: Instance of a Blessed terminal.
     @param on_close: Callback function to run when menu is closed.
-    @param project_menu: Instance of a project menu."""
+    @param pomo_controller: Instance of a pomodoro controller."""
 
     def __init__(self, term: Terminal, on_close: Callable[[], None], pomo_controller: PomodoroController) -> None:
         super().__init__(on_close, term.gray20_on_lavender)
