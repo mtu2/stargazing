@@ -1,7 +1,7 @@
 import app
 
 
-def main():
+def run_app():
     """Main entry point for script"""
 
     x = app.App()
@@ -9,4 +9,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    run_app()
