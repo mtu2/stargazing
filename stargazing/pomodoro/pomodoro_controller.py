@@ -1,6 +1,7 @@
 from __future__ import annotations
 from enum import Enum
 from typing import List
+import os.path as path
 
 import data.database as database
 import audio.audio_controller as audio_ac
@@ -9,8 +10,8 @@ import pomodoro.timer as pomo_t
 import project.project_controller as proj_pc
 from utils.format_funcs import format_pomodoro_time
 
-ALARM_START_PATH = "res/alarm_start.mp3"
-ALARM_FINISH_PATH = "res/alarm_finish.mp3"
+ALARM_START_PATH = f"{path.dirname(path.abspath(__file__))}/../res/alarm_start.mp3"
+ALARM_FINISH_PATH = f"{path.dirname(path.abspath(__file__))}/../res/alarm_finish.mp3"
 
 
 class PomodoroIntervalSettings():

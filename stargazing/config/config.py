@@ -1,10 +1,11 @@
 from __future__ import annotations
 from typing import List, Tuple
 import ujson
+import os.path as path
 
 import pomodoro.pomodoro_controller as pomo_pc
 
-CONFIG_FILE_PATH = "config/settings.json"
+CONFIG_FILE_PATH = f"{path.dirname(path.abspath(__file__))}/../config/settings.json"
 
 
 def get_saved_youtube_player_urls() -> List[str]:

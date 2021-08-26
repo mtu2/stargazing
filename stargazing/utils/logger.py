@@ -1,6 +1,6 @@
 import logging
 import logging.config
-
+import os.path as path
 
 LOGGING_CONFIG = {
     "version": 1,
@@ -17,14 +17,14 @@ LOGGING_CONFIG = {
             "class": "logging.FileHandler",
             "level": "DEBUG",
             "formatter": "simple",
-            "filename": "logs/debug.log",
+            "filename": f"{path.dirname(path.abspath(__file__))}/../logs/debug.log",
             "encoding": "utf8"
         },
         "errorfile": {
             "class": "logging.FileHandler",
             "level": "ERROR",
             "formatter": "detail",
-            "filename": "logs/error.log",
+            "filename": f"{path.dirname(path.abspath(__file__))}/../logs/error.log",
             "encoding": "utf8"
         }
     },

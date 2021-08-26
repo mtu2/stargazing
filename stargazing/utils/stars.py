@@ -2,9 +2,9 @@ import math
 import random
 import time
 from typing import List
+import os.path as path
 
-
-DEFAULT_STARS_PATH = "res/stars.txt"
+DEFAULT_STARS_PATH = f"{path.dirname(path.abspath(__file__))}/../res/stars.txt"
 
 
 class StarsGenerator():

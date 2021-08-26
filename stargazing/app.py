@@ -1,6 +1,7 @@
 from blessed import Terminal
 from functools import partial
 import sys
+import os.path as path
 
 import audio.audio_controller as audio_ac
 import audio.player_menu as audio_pm
@@ -22,7 +23,7 @@ import utils.print_funcs as print_funcs
 from utils.stars import StarsGenerator
 
 
-GAZING_PATH = "res/gazing.txt"
+GAZING_PATH = f"{path.dirname(path.abspath(__file__))}/res/gazing.txt"
 
 
 class App(Menu):

@@ -2,7 +2,7 @@ from distutils.core import setup
 setup(
     name='stargazing',         # How you named your package folder (MyLib)
     packages=['stargazing'],   # Chose the same as "name"
-    version='0.1.3',      # Start with a small number and increase it with every change you make
+    version='0.1.4',      # Start with a small number and increase it with every change you make
     # Chose a license from here: https://help.github.com/articles/licensing-a-repository
     license='MIT',
     # Give a short description about your library
@@ -12,7 +12,7 @@ setup(
     # Provide either the link to your github or to your website
     url='https://github.com/mtu2/stargazing',
     # I explain this later on
-    download_url='https://github.com/mtu2/stargazing/archive/refs/tags/v0.1.3.tar.gz',
+    download_url='https://github.com/mtu2/stargazing/archive/refs/tags/v0.1.4.tar.gz',
     # Keywords that define your package best
     keywords=['terminal', 'python', 'study', 'work', 'pomodoro'],
     install_requires=[            # I get to this in a second
@@ -43,7 +43,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'stargazing=stargazing.command_line:run_app',
+            'stargazing=stargazing.main:run_app',
         ],
     },
 )

@@ -3,4 +3,4 @@ setup.cfg
 setup.py
 stargazing\__init__.py
 stargazing\app.py
-stargazing\main.py
+stargazing\command_line.py

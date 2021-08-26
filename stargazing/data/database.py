@@ -1,6 +1,7 @@
 from collections import namedtuple
 from datetime import datetime, timedelta
 from typing import List, Union
+import os.path as path
 
 import pomodoro.timer as pomo_t
 import project.project_controller as project_pc
@@ -10,8 +11,8 @@ PomodoroRecord = namedtuple(
 
 TIME_FORMAT = "%d/%m/%Y %H:%M:%S"
 
-PROJECT_DATABASE_PATH = "data/projects.txt"
-POMODORO_DATABASE_PATH = "data/pomodoros.txt"
+PROJECT_DATABASE_PATH = f"{path.dirname(path.abspath(__file__))}/../data/projects.txt"
+POMODORO_DATABASE_PATH = f"{path.dirname(path.abspath(__file__))}/../data/pomodoros.txt"
 
 DATABASE_DELIMITER_CHAR = "|"
 
