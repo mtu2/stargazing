@@ -1,0 +1,40 @@
+{
+    "saved_youtube_player_urls": {
+        "lofi radio": "https:\/\/www.youtube.com\/watch?v=5qap5aO4i9A&ab_channel=LofiGirl",
+        "coffee shop": "https:\/\/www.youtube.com\/watch?v=VMAPTo7RVCo&ab_channel=CalmedByNature",
+        "island in the sun": "https:\/\/www.youtube.com\/watch?v=erG5rgNYSdk&ab_channel=WeezerVEVO"
+    },
+    "interval_times": [
+        [
+            1200,
+            600
+        ],
+        [
+            1800,
+            600
+        ],
+        [
+            2400,
+            1200
+        ],
+        [
+            2700,
+            900
+        ],
+        [
+            3000,
+            600
+        ],
+        [
+            3600,
+            0
+        ]
+    ],
+    "last_project_name": "stargazing",
+    "last_interval_time": [
+        3600,
+        0
+    ],
+    "last_autostart": true,
+    "last_volume": 70
+}

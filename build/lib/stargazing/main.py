@@ -3,9 +3,9 @@ from functools import partial
 import sys
 import os.path as path
 
-import audio.audio_controller as audio_ac
-import audio.player_menu as audio_pm
-import audio.volume_menu as audio_vm
+import stargazing.audio.audio_controller as audio_ac
+import stargazing.audio.player_menu as audio_pm
+import stargazing.audio.volume_menu as audio_vm
 
 import config.config as config
 
@@ -26,7 +26,7 @@ from utils.stars import StarsGenerator
 GAZING_PATH = f"{path.dirname(path.abspath(__file__))}/res/gazing.txt"
 
 
-class App(Menu):
+class Stargazing(Menu):
 
     def __init__(self) -> None:
 
@@ -234,3 +234,13 @@ class App(Menu):
         x, y = 2, 1
 
         print_funcs.print_lines_xy(self.term, x, y, dec_lines, flush=False)
+
+
+def run_stargazing():
+    """Main entry point for script"""
+    stargazing = Stargazing()
+    stargazing.start()
+
+
+if __name__ == "__main__":
+    run_stargazing()
