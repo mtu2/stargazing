@@ -1,7 +1,5 @@
 import stargazing
 
-__all__ = ["main"]
-
 
 def main():
     """Main entry point for script"""
