@@ -3,7 +3,7 @@ from functools import partial
 from typing import Callable
 
 import data.database as database
-from project.project_controller import Project, ProjectController
+import project.project_controller as proj_pc
 from utils.menu import Menu
 
 
@@ -14,7 +14,7 @@ class ProjectMenu(Menu):
     @param on_close: Callback function to run when menu is closed.
     @param pomodoro_controller: Instance of a project controller."""
 
-    def __init__(self, term: Terminal, on_close: Callable[[], None], project_controller: ProjectController) -> None:
+    def __init__(self, term: Terminal, on_close: Callable[[], None], project_controller: proj_pc.ProjectController) -> None:
         super().__init__(on_close, term.gray20_on_lavender)
 
         self.term = term
@@ -25,7 +25,7 @@ class ProjectMenu(Menu):
 
         self.setup_menu()
 
-    def set_current_project_and_close(self, project: Project) -> None:
+    def set_current_project_and_close(self, project: proj_pc.Project) -> None:
         self.project_controller.set_current_project(project)
         super().handle_close()
 

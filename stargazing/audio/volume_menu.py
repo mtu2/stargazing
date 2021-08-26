@@ -2,7 +2,7 @@ from blessed import Terminal
 from functools import partial
 from typing import Callable
 
-from audio.audio_controller import AudioController
+import audio.audio_controller as audio_ac
 from utils.menu import Menu
 
 
@@ -13,7 +13,7 @@ class VolumeMenu(Menu):
     @param on_close: Callback function to run when menu is closed.
     @param audio_controller: Instance of an audio controller."""
 
-    def __init__(self, term: Terminal, on_close: Callable[[], None], audio_controller: AudioController) -> None:
+    def __init__(self, term: Terminal, on_close: Callable[[], None], audio_controller: audio_ac.AudioController) -> None:
         super().__init__(on_close, term.gray20_on_lavender)
 
         self.term = term

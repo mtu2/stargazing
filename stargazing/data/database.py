@@ -2,9 +2,8 @@ from collections import namedtuple
 from datetime import datetime, timedelta
 from typing import List, Union
 
-from pomodoro.timer import Timer
-from project.project_controller import Project
-
+import pomodoro.timer as pomo_t
+import project.project_controller as project_pc
 
 PomodoroRecord = namedtuple(
     "PomodoroRecord", ["project_name", "start_time", "length"])
@@ -17,7 +16,7 @@ POMODORO_DATABASE_PATH = "data/pomodoros.txt"
 DATABASE_DELIMITER_CHAR = "|"
 
 
-def insert_project(project: Project) -> bool:
+def insert_project(project: project_pc.Project) -> bool:
     with open(PROJECT_DATABASE_PATH, "r") as file:
         lines = file.readlines()
 
@@ -31,12 +30,12 @@ def insert_project(project: Project) -> bool:
     return True
 
 
-def get_all_projects() -> List[Project]:
+def get_all_projects() -> List[project_pc.Project]:
     with open(PROJECT_DATABASE_PATH, "r") as file:
         lines = file.readlines()
 
     stripped_lines = [line.rstrip("\n") for line in lines]
-    projects = {name: Project(name) for name in stripped_lines}
+    projects = {name: project_pc.Project(name) for name in stripped_lines}
 
     pomo_records = get_all_pomodoros()
     current_time = datetime.now()
@@ -65,7 +64,7 @@ def get_todays_total_time() -> int:
     return todays_total_time
 
 
-def insert_pomodoro(project: Project, timer: Timer) -> None:
+def insert_pomodoro(project: project_pc.Project, timer: pomo_t.Timer) -> None:
     with open(POMODORO_DATABASE_PATH, "a") as file:
         start_time = timer.local_start_time.strftime(TIME_FORMAT)
         file.write(f"{project.name}|{start_time}|{timer.elapsed_time}\n")

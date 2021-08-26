@@ -3,10 +3,10 @@ from enum import Enum
 from typing import List
 
 import data.database as database
-import audio.audio_controller
-from audio.audio_player import AudioPlayer
-from pomodoro.timer import Timer
-import project.project_controller
+import audio.audio_controller as audio_ac
+import audio.audio_player as audio_ap
+import pomodoro.timer as pomo_t
+import project.project_controller as proj_pc
 from utils.format_funcs import format_pomodoro_time
 
 ALARM_START_PATH = "res/alarm_start.mp3"
@@ -50,7 +50,7 @@ class PomodoroController():
     @param project_controller: Instance of a project controller.
     @param audio_controller: Instance of an audio controller."""
 
-    def __init__(self, project_controller: project.project_controller.ProjectController, audio_controller: audio.audio_controller.AudioController,
+    def __init__(self, project_controller: proj_pc.ProjectController, audio_controller: audio_ac.AudioController,
                  interval_time: PomodoroIntervalSettings = None, last_autostart=True) -> None:
 
         self.project_controller = project_controller
@@ -60,14 +60,14 @@ class PomodoroController():
             2400, 600)
         self.autostart_setting = last_autostart
 
-        self.timer = Timer(self.interval_settings.work_secs)
+        self.timer = pomo_t.Timer(self.interval_settings.work_secs)
         self.status = PomodoroStatus.INACTIVE
 
     def finish_timer(self, disable_sound=False) -> None:
         if self.status in (PomodoroStatus.WORK, PomodoroStatus.PAUSED_WORK):
             database.insert_pomodoro(
                 self.project_controller.current, self.timer)
-            self.timer = Timer(self.interval_settings.break_secs)
+            self.timer = pomo_t.Timer(self.interval_settings.break_secs)
 
             if not disable_sound:
                 self.__play_alarm_sound(ALARM_FINISH_PATH)
@@ -78,7 +78,7 @@ class PomodoroController():
             else:
                 self.status = PomodoroStatus.FINISHED_WORK
         elif self.status in (PomodoroStatus.BREAK, PomodoroStatus.PAUSED_BREAK):
-            self.timer = Timer(self.interval_settings.work_secs)
+            self.timer = pomo_t.Timer(self.interval_settings.work_secs)
 
             if self.autostart_setting:
                 self.timer.start()
@@ -93,12 +93,12 @@ class PomodoroController():
         if self.status in (PomodoroStatus.WORK, PomodoroStatus.PAUSED_WORK, PomodoroStatus.FINISHED_WORK):
             database.insert_pomodoro(
                 self.project_controller.current, self.timer)
-            self.timer = Timer(self.interval_settings.work_secs)
+            self.timer = pomo_t.Timer(self.interval_settings.work_secs)
 
             self.timer.start()
             self.status = PomodoroStatus.WORK
         elif self.status in (PomodoroStatus.BREAK, PomodoroStatus.PAUSED_BREAK, PomodoroStatus.FINISHED_BREAK):
-            self.timer = Timer(self.interval_settings.break_secs)
+            self.timer = pomo_t.Timer(self.interval_settings.break_secs)
 
             self.timer.start()
             self.status = PomodoroStatus.BREAK
@@ -155,7 +155,7 @@ class PomodoroController():
 
         self.audio_controller.set_volume(max(curr_vol - audio_decr, 0))
 
-        alarm = AudioPlayer(path)
+        alarm = audio_ap.AudioPlayer(path)
         alarm.set_volume(curr_vol)
         alarm.play()
 

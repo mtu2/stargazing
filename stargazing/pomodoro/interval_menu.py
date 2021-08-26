@@ -3,7 +3,7 @@ from functools import partial
 from typing import Callable
 
 import config.config as config
-from pomodoro.pomodoro_controller import PomodoroController, PomodoroIntervalSettings
+import pomodoro.pomodoro_controller as pomo_pc
 from utils.menu import Menu
 
 
@@ -14,7 +14,7 @@ class IntervalMenu(Menu):
     @param on_close: Callback function to run when menu is closed.
     @param pomo_controller: Instance of a pomodoro controller."""
 
-    def __init__(self, term: Terminal, on_close: Callable[[], None], pomo_controller: PomodoroController) -> None:
+    def __init__(self, term: Terminal, on_close: Callable[[], None], pomo_controller: pomo_pc.PomodoroController) -> None:
         super().__init__(on_close, term.gray20_on_lavender)
 
         self.term = term
@@ -26,11 +26,11 @@ class IntervalMenu(Menu):
 
     def __load_interval_settings(self) -> None:
         interval_times = config.get_interval_times()
-        settings = [PomodoroIntervalSettings(
+        settings = [pomo_pc.PomodoroIntervalSettings(
             *interval_time) for interval_time in interval_times]
         return settings
 
-    def set_interval_settings_and_close(self, interval_settings: PomodoroIntervalSettings) -> None:
+    def set_interval_settings_and_close(self, interval_settings: pomo_pc.PomodoroIntervalSettings) -> None:
         self.pomo_controller.set_interval_settings(interval_settings)
         super().handle_close()
 

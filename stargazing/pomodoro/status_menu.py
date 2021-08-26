@@ -1,7 +1,7 @@
 from blessed import Terminal
 from typing import Callable
 
-from pomodoro.pomodoro_controller import PomodoroController
+import pomodoro.pomodoro_controller as pomo_pc
 from utils.menu import Menu
 
 
@@ -12,7 +12,7 @@ class StatusMenu(Menu):
     @param on_close: Callback function to run when menu is closed.
     @param pomodoro_controller: Instance of a pomodoro controller."""
 
-    def __init__(self, term: Terminal, on_close: Callable[[], None], pomodoro_controller: PomodoroController) -> None:
+    def __init__(self, term: Terminal, on_close: Callable[[], None], pomodoro_controller: pomo_pc.PomodoroController) -> None:
         super().__init__(on_close, term.gray20_on_lavender)
 
         self.term = term

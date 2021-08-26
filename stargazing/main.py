@@ -1,11 +1,13 @@
-from stargazing import Stargazing
+import stargazing
+
+__all__ = ["main"]
 
 
 def main():
     """Main entry point for script"""
 
-    stargazing = Stargazing()
-    stargazing.start()
+    x = stargazing.Stargazing()
+    x.start()
 
 
 if __name__ == "__main__":

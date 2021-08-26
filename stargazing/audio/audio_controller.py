@@ -2,8 +2,8 @@ import concurrent.futures
 import re
 import urllib.request
 
-from audio.audio_player import AudioPlayer, YoutubeAudioPlayer
-import config.config
+import audio.audio_player as audio_ap
+import config.config as config
 from utils.helper_funcs import silent_stderr, start_daemon_thread
 
 
@@ -13,7 +13,7 @@ class AudioController():
     @param volume: Initial volume level."""
 
     def __init__(self, volume=100) -> None:
-        self.saved_youtube_player_urls = config.config.get_saved_youtube_player_urls()
+        self.saved_youtube_player_urls = config.get_saved_youtube_player_urls()
         self.loaded_players = {
             name: None for name in self.saved_youtube_player_urls}
         start_daemon_thread(target=self.__load_audio_players)
@@ -64,7 +64,8 @@ class AudioController():
         self.stop()
 
         self.playing_name = "loading audio..."
-        self.playing = YoutubeAudioPlayer.safe_create(youtube_url, True)
+        self.playing = audio_ap.YoutubeAudioPlayer.safe_create(
+            youtube_url, True)
 
         if self.playing:
             self.playing_name = self.playing.video_titles[0] if not player_name else player_name
@@ -90,7 +91,7 @@ class AudioController():
 
     def __load_audio_players(self) -> None:
         silent_yt_audio_init = silent_stderr(
-            lambda url: YoutubeAudioPlayer.safe_create(url, True))
+            lambda url: audio_ap.YoutubeAudioPlayer.safe_create(url, True))
 
         with concurrent.futures.ThreadPoolExecutor() as exec:
             futures_to_name = {exec.submit(
